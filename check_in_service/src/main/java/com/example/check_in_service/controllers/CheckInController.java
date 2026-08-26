@@ -36,12 +36,12 @@ public class CheckInController {
     @GetMapping
     public ResponseEntity<List<CheckInResponseDTO>> getCheckIns(
             @RequestParam(required = false) UUID registrationId,
-            @RequestParam(required = false) UUID segmentId) {
+            @RequestParam(required = false) UUID eventId) {
         List<CheckInResponseDTO> checkIns;
         if (registrationId != null) {
             checkIns = checkInService.getCheckInsByRegistrationId(registrationId);
-        } else if (segmentId != null) {
-            checkIns = checkInService.getCheckInsBySegmentId(segmentId);
+        } else if (eventId != null) {
+            checkIns = checkInService.getCheckInsByEventId(eventId);
         } else {
             checkIns = checkInService.getAllCheckIns();
         }

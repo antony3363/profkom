@@ -1,34 +1,45 @@
 package com.example.events_service.clients;
 
+import com.example.profile_service.grpc.PersonGrpcServiceGrpc;
+import com.example.profile_service.grpc.PersonSummary;
+import com.example.profile_service.grpc.SearchPersonsRequest;
+import com.example.profile_service.grpc.SearchPersonsResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * Talks to the user/person microservice to resolve names & faculties for a bounded set of
- * personIds (e.g. the volunteers of one event), already filtered/sorted server-side there.
- * Contract proposed here ("POST /api/v1/persons/search") - needs to actually exist on the
- * person-service side, it's not part of this repo.
+ * gRPC-клиент к profile_service. Раньше был REST-вызовом к вымышленному
+ * "person-service" — теперь целится в реально существующий profile_service.
  */
 @Component
 @RequiredArgsConstructor
 public class PersonServiceClient {
 
-    private final RestClient personServiceRestClient;
+    private final PersonGrpcServiceGrpc.PersonGrpcServiceBlockingStub personGrpcServiceBlockingStub;
 
-    public List<PersonLookupDTO> searchPersons(List<Long> personIds, String faculty) {
+    public List<PersonLookupDTO> searchPersons(List<Long> personIds) {
         if (personIds.isEmpty()) {
             return List.of();
         }
 
-        return personServiceRestClient.post()
-                .uri("/api/v1/persons/search")
-                .body(new PersonSearchRequest(personIds, faculty))
-                .retrieve()
-                .body(new ParameterizedTypeReference<List<PersonLookupDTO>>() {
-                });
+        SearchPersonsRequest request = SearchPersonsRequest.newBuilder()
+                .addAllPersonIds(personIds)
+                .build();
+
+        SearchPersonsResponse response = personGrpcServiceBlockingStub.searchPersons(request);
+
+        return response.getPersonsList().stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
+    private PersonLookupDTO toDto(PersonSummary summary) {
+        return new PersonLookupDTO(
+                summary.getPersonId(),
+                summary.getFullName(),
+                summary.hasGroupTitle() ? summary.getGroupTitle() : null);
     }
 }

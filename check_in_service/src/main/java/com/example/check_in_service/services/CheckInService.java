@@ -9,12 +9,16 @@ import com.example.check_in_service.exceptions.DuplicateRecordException;
 import com.example.check_in_service.exceptions.EntityNotFoundException;
 import com.example.check_in_service.exceptions.InvalidQrPayloadException;
 import com.example.check_in_service.exceptions.UnauthorizedException;
+import com.example.check_in_service.grpc.EventDetails;
+import com.example.check_in_service.grpc.EventGrpcClient;
+import com.example.check_in_service.grpc.TransactionGrpcClient;
+import com.example.check_in_service.qr.EventQrPayload;
+import com.example.check_in_service.qr.EventQrService;
 import com.example.check_in_service.qr.QrTokenService;
-import com.example.check_in_service.qr.SegmentQrPayload;
-import com.example.check_in_service.qr.SegmentQrService;
 import com.example.check_in_service.repositories.CheckInRepository;
 import com.example.check_in_service.repositories.RegistrationRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,55 +28,83 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CheckInService {
 
     private final CheckInRepository checkInRepository;
     private final RegistrationRepository registrationRepository;
     private final QrTokenService qrTokenService;
-    private final SegmentQrService segmentQrService;
+    private final EventQrService eventQrService;
+    private final EventGrpcClient eventGrpcClient;
+    private final TransactionGrpcClient transactionGrpcClient;
 
     @Transactional
     public CheckInResponseDTO createCheckIn(CheckInCreateRequestDTO dto, Long callerPersonId) {
         long personId;
-        SegmentQrPayload segment;
+        UUID eventId;
 
         if (dto.getType() == CheckInType.SELF_SCAN) {
             if (callerPersonId == null) {
                 throw new UnauthorizedException("Missing caller identity for self check-in");
             }
             personId = callerPersonId;
-            segment = segmentQrService.parseSegmentPayload(dto.getQrPayload());
+            EventQrPayload parsed = eventQrService.parseEventPayload(dto.getQrPayload());
+            eventId = parsed.eventId();
         } else {
-            if (dto.getSegmentId() == null) {
-                throw new InvalidQrPayloadException("segmentId is required for staff scan");
+            if (dto.getEventId() == null) {
+                throw new InvalidQrPayloadException("eventId is required for staff scan");
             }
             personId = qrTokenService.verifyAndExtractPersonId(dto.getQrPayload());
-            segment = segmentQrService.resolveSegment(dto.getSegmentId());
+            eventId = dto.getEventId();
         }
+
+        // всегда берём актуальные данные о мероприятии из events_service, а не только
+        // то, что было закодировано в QR на момент его генерации
+        EventDetails event = eventGrpcClient.getEventDetails(eventId);
 
         Registration registration = registrationRepository
-                .findByPersonIdAndEventId(personId, segment.eventId())
+                .findByPersonIdAndEventId(personId, eventId)
                 .orElse(null);
 
-        if (registration == null && segment.registrationRequired()) {
+        if (registration == null && event.registrationRequired()) {
             throw new EntityNotFoundException(
-                    "Person " + personId + " is not registered for event " + segment.eventId());
+                    "Person " + personId + " is not registered for event " + eventId);
         }
 
-        if (checkInRepository.existsByPersonIdAndSegmentId(personId, segment.segmentId())) {
+        if (checkInRepository.existsByPersonIdAndEventId(personId, eventId)) {
             throw new DuplicateRecordException(
-                    "Person " + personId + " is already checked in for segment " + segment.segmentId());
+                    "Person " + personId + " is already checked in for event " + eventId);
         }
 
         CheckIn checkIn = CheckIn.builder()
                 .registration(registration)
                 .personId(personId)
-                .segmentId(segment.segmentId())
+                .eventId(eventId)
                 .type(dto.getType())
                 .build();
 
         checkIn = checkInRepository.save(checkIn);
+
+        awardPointsIfApproved(event, personId);
+
         return mapToResponseDTO(checkIn);
+    }
+
+    /**
+     * Начисление баллов — сайд-эффект, не должен ронять сам чек-ин, если
+     * Transactions Service недоступен (посещение уже зафиксировано). Известное
+     * ограничение MVP: без outbox/повторных попыток — если вызов не удался,
+     * баллы придётся начислить вручную.
+     */
+    private void awardPointsIfApproved(EventDetails event, long personId) {
+        if (event.pointsPerAttendee() == null || event.pointsPerAttendee() <= 0 || event.reviewedBy() == null) {
+            return;
+        }
+        try {
+            transactionGrpcClient.awardEventReward(event.reviewedBy(), personId, event.pointsPerAttendee(), event.eventId());
+        } catch (Exception e) {
+            log.error("Failed to award event reward for person {} / event {}", personId, event.eventId(), e);
+        }
     }
 
     @Transactional(readOnly = true)
@@ -97,8 +129,8 @@ public class CheckInService {
     }
 
     @Transactional(readOnly = true)
-    public List<CheckInResponseDTO> getCheckInsBySegmentId(UUID segmentId) {
-        return checkInRepository.findBySegmentId(segmentId).stream()
+    public List<CheckInResponseDTO> getCheckInsByEventId(UUID eventId) {
+        return checkInRepository.findByEventId(eventId).stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -116,7 +148,7 @@ public class CheckInService {
                 .checkInId(checkIn.getCheckInId())
                 .registrationId(checkIn.getRegistration() != null ? checkIn.getRegistration().getRegistrationId() : null)
                 .personId(checkIn.getPersonId())
-                .segmentId(checkIn.getSegmentId())
+                .eventId(checkIn.getEventId())
                 .type(checkIn.getType())
                 .createdAt(checkIn.getCreatedAt())
                 .build();

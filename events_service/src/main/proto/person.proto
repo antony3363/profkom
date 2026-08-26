@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package profkom.profile;
+
+option java_package = "com.example.profile_service.grpc";
+option java_multiple_files = true;
+
+// Вызывается events_service (VolunteerService — резолвит имена волонтёров по personId).
+service PersonGrpcService {
+  rpc SearchPersons(SearchPersonsRequest) returns (SearchPersonsResponse);
+}
+
+message SearchPersonsRequest {
+  repeated int64 person_ids = 1;
+}
+
+message PersonSummary {
+  int64 person_id = 1;
+  string full_name = 2;
+  optional string group_title = 3;
+}
+
+message SearchPersonsResponse {
+  repeated PersonSummary persons = 1;
+}

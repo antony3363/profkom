@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ClaudeCodeEditorTabs">
-    <option name="activeSessionId" value="ce815c12-428a-4c8a-a83c-058c3cda3b4a" />
+    <option name="activeSessionId" value="1dc67110-4e7d-468b-9222-12b517bf1c4a" />
     <option name="openSessionIds">
       <list>
         <option value="eaa81f96-823a-44ae-98b5-b5954b769973" />
-        <option value="ce815c12-428a-4c8a-a83c-058c3cda3b4a" />
+        <option value="1dc67110-4e7d-468b-9222-12b517bf1c4a" />
       </list>
     </option>
     <option name="sessionPaths">
       <map>
-        <entry key="ce815c12-428a-4c8a-a83c-058c3cda3b4a" value="/sessions/0783b4a6-a5ab-4ccb-9daa-bdb83d3df98d" />
+        <entry key="1dc67110-4e7d-468b-9222-12b517bf1c4a" value="/sessions/6dd34556-843c-466d-9220-78d15c180d85" />
         <entry key="eaa81f96-823a-44ae-98b5-b5954b769973" value="/switch-account" />
       </map>
     </option>
     <option name="sessionTitles">
       <map>
-        <entry key="ce815c12-428a-4c8a-a83c-058c3cda3b4a" value="Что нужно добавить в эти 2 микросервиса и как их п" />
+        <entry key="1dc67110-4e7d-468b-9222-12b517bf1c4a" value="Product product_id title description media_id pric" />
         <entry key="eaa81f96-823a-44ae-98b5-b5954b769973" value="Я могу сделать так, чтобы у меня был только 1 чат" />
       </map>
     </option>

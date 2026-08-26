@@ -10,6 +10,6 @@ import java.util.UUID;
 @Repository
 public interface CheckInRepository extends JpaRepository<CheckIn, UUID> {
     List<CheckIn> findByRegistration_RegistrationId(UUID registrationId);
-    List<CheckIn> findBySegmentId(UUID segmentId);
-    boolean existsByPersonIdAndSegmentId(long personId, UUID segmentId);
+    List<CheckIn> findByEventId(UUID eventId);
+    boolean existsByPersonIdAndEventId(long personId, UUID eventId);
 }

@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package profkom.events;
+
+option java_package = "com.example.events_service.grpc";
+option java_multiple_files = true;
+
+// Вызывается check_in_service при чек-ине на мероприятие.
+service EventGrpcService {
+  rpc GetEvent(GetEventRequest) returns (EventInfo);
+}
+
+message GetEventRequest {
+  string event_id = 1;
+}
+
+message EventInfo {
+  string event_id = 1;
+  bool registration_required = 2;
+  optional int64 points_per_attendee = 3;
+  optional int64 reviewed_by = 4;
+  optional int64 school_id = 5;
+  string status = 6;
+  string moderation_status = 7;
+}

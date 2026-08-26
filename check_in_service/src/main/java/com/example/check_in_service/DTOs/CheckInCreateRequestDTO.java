@@ -16,14 +16,14 @@ public class CheckInCreateRequestDTO {
     private CheckInType type;
 
     /**
-     * SELF_SCAN: the segment QR payload the user scanned.
+     * SELF_SCAN: the event QR payload the user scanned.
      * STAFF_SCAN: the person QR payload the volunteer scanned.
      */
     @NotNull
     private String qrPayload;
 
     /**
-     * Required only for STAFF_SCAN: the segment the volunteer's station is checking people into.
+     * Required only for STAFF_SCAN: the event the volunteer's station is checking people into.
      */
-    private UUID segmentId;
+    private UUID eventId;
 }

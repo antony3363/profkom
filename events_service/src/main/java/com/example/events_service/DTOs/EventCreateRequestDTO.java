@@ -1,9 +1,9 @@
 package com.example.events_service.DTOs;
 
 
-import com.example.events_service.enums.AttendanceTypes;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -43,10 +43,18 @@ public class EventCreateRequestDTO {
     @NotNull
     private long ownerId;
 
-    @NotNull
-    private AttendanceTypes attendanceType;
+    /**
+     * Школа, от лица которой подаётся заявка. Null допустим только для служебных
+     * мероприятий, создаваемых администратором (не попадают в каталог).
+     */
+    private Long schoolId;
+
+    /**
+     * Сколько баллов за посещение запрашивает профорг школы — окончательное число
+     * назначает Литвинов при принятии заявки.
+     */
+    @PositiveOrZero
+    private Integer requestedPointsPerAttendee;
 
     private boolean registrationRequired;
-
-    private List<SegmentEventNestedCreateRequestDTO> segmentEvents;
 }

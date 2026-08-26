@@ -1,6 +1,6 @@
 package com.example.events_service.entities;
 
-import com.example.events_service.enums.AttendanceTypes;
+import com.example.events_service.enums.EventModerationStatus;
 import com.example.events_service.enums.EventStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -8,7 +8,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -53,16 +52,46 @@ public class Event {
     @Column(name = "available_group_ids", columnDefinition = "TEXT[]")
     private List<String> availableGroupIds;
 
+    /**
+     * Профорг школы, отправивший заявку на мероприятие.
+     */
     @Column(name = "owner_id", nullable = false)
     private long ownerId;
 
-    @Column(name = "status", nullable = false)
-    private EventStatus  status;
+    /**
+     * Школа, от лица которой подана заявка. Null — системное/служебное мероприятие,
+     * не показывается в каталоге пользователям.
+     */
+    @Column(name = "school_id")
+    private Long schoolId;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("orderIndex ASC")
+    @Column(name = "status", nullable = false)
+    private EventStatus status;
+
+    /**
+     * Статус рассмотрения заявки Литвиновым — независим от status (публикации).
+     */
+    @Column(name = "moderation_status", nullable = false)
     @Builder.Default
-    private List<SegmentEvent> segmentEvents = new ArrayList<>();
+    private EventModerationStatus moderationStatus = EventModerationStatus.SUBMITTED;
+
+    /**
+     * Сколько баллов за посещение запросил профорг школы при подаче заявки.
+     */
+    @Column(name = "requested_points_per_attendee")
+    private Integer requestedPointsPerAttendee;
+
+    /**
+     * Сколько баллов за посещение фактически назначил Литвинов при принятии заявки.
+     */
+    @Column(name = "points_per_attendee")
+    private Integer pointsPerAttendee;
+
+    @Column(name = "reviewed_by")
+    private Long reviewedBy;
+
+    @Column(name = "reviewed_at")
+    private LocalDateTime reviewedAt;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
@@ -72,11 +101,6 @@ public class Event {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "is_registration_required",  nullable = false)
+    @Column(name = "is_registration_required", nullable = false)
     private boolean registrationRequired;
-
-    @Column(name = "attendance_type", nullable = false)
-    private AttendanceTypes attendanceType;
-
-
 }

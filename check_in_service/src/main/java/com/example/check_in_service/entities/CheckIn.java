@@ -17,6 +17,12 @@ import java.util.UUID;
 @Builder
 public class CheckIn {
 
+
+
+    // TODO: добавить волонтера
+
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "check_in_id", nullable = false, updatable = false)
@@ -29,8 +35,8 @@ public class CheckIn {
     @Column(name = "person_id", nullable = false, updatable = false)
     private long personId;
 
-    @Column(name = "segment_id", nullable = false, updatable = false)
-    private UUID segmentId;
+    @Column(name = "event_id", nullable = false, updatable = false)
+    private UUID eventId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, updatable = false)

@@ -14,5 +14,5 @@ public class VolunteerRecordResponseDTO {
     private long lichnostId;
     private UUID eventId;
     private String fullName;
-    private String faculty;
+    private String groupTitle;
 }

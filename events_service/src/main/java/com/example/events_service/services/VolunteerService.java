@@ -68,14 +68,14 @@ public class VolunteerService {
 
 
     @Transactional(readOnly = true)
-    public List<VolunteerRecordResponseDTO> getVolunteersByEventId(UUID eventId, String faculty) {
+    public List<VolunteerRecordResponseDTO> getVolunteersByEventId(UUID eventId) {
         List<VolunteerRecord> volunteerRecords = volunteerRepository.findAllByEvent_EventId(eventId);
 
         List<Long> personIds = volunteerRecords.stream()
                 .map(VolunteerRecord::getLichnostId)
                 .collect(Collectors.toList());
 
-        List<PersonLookupDTO> persons = personServiceClient.searchPersons(personIds, faculty);
+        List<PersonLookupDTO> persons = personServiceClient.searchPersons(personIds);
 
         Map<Long, VolunteerRecord> volunteersByPersonId = volunteerRecords.stream()
                 .collect(Collectors.toMap(VolunteerRecord::getLichnostId, v -> v));
@@ -112,7 +112,7 @@ public class VolunteerService {
                 .lichnostId(volunteerRecord.getLichnostId())
                 .eventId(volunteerRecord.getEvent().getEventId())
                 .fullName(person.fullName())
-                .faculty(person.faculty())
+                .groupTitle(person.groupTitle())
                 .build();
     }
 

@@ -1,6 +1,6 @@
 package com.example.events_service.DTOs;
 
-import com.example.events_service.enums.AttendanceTypes;
+import com.example.events_service.enums.EventModerationStatus;
 import com.example.events_service.enums.EventStatus;
 import lombok.*;
 
@@ -25,10 +25,14 @@ public class EventResponseDTO {
     private LocalDateTime endAt;
     private List<String> availableGroupIds;
     private long ownerId;
+    private Long schoolId;
     private EventStatus status;
+    private EventModerationStatus moderationStatus;
+    private Integer requestedPointsPerAttendee;
+    private Integer pointsPerAttendee;
+    private Long reviewedBy;
+    private LocalDateTime reviewedAt;
     private boolean registrationRequired;
-    private AttendanceTypes attendanceType;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private List<SegmentEventResponseDTO> segmentEvents;
 }

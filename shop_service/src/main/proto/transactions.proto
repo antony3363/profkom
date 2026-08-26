@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package profkom.transactions;
+
+option java_package = "com.example.transactions_service.grpc";
+option java_multiple_files = true;
+
+// Вызывается check_in_service (после чек-ина на мероприятие) и shop_service
+// (после резервирования стока под покупку).
+service TransactionGrpcService {
+  rpc AwardEventReward(AwardEventRewardRequest) returns (TransactionInfo);
+  rpc ChargePurchase(ChargePurchaseRequest) returns (TransactionInfo);
+  rpc RefundPurchase(RefundPurchaseRequest) returns (TransactionInfo);
+}
+
+message AwardEventRewardRequest {
+  int64 reviewer_user_id = 1;
+  int64 receiver_user_id = 2;
+  int64 amount = 3;
+  string event_id = 4;
+  string description = 5;
+}
+
+message ChargePurchaseRequest {
+  int64 buyer_user_id = 1;
+  int64 amount = 2;
+  string purchase_id = 3;
+  string description = 4;
+}
+
+message RefundPurchaseRequest {
+  int64 buyer_user_id = 1;
+  int64 amount = 2;
+  string purchase_id = 3;
+  string description = 4;
+}
+
+message TransactionInfo {
+  string transaction_id = 1;
+  string sender_wallet_id = 2;
+  string receiver_wallet_id = 3;
+  string type = 4;
+  int64 amount = 5;
+  string status = 6;
+  string related_event_id = 7;
+  string related_purchase_id = 8;
+  string description = 9;
+  string created_at = 10;
+}

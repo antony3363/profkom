@@ -1,7 +1,6 @@
 package com.example.events_service.DTOs;
 
 
-import com.example.events_service.enums.AttendanceTypes;
 import com.example.events_service.enums.EventStatus;
 import lombok.*;
 
@@ -32,8 +31,6 @@ public class EventUpdateRequestDTO {
     private LocalDateTime endAt;
 
     private List<String> availableGroupIds;
-
-    private AttendanceTypes attendanceType;
 
     private Boolean registrationRequired;
 

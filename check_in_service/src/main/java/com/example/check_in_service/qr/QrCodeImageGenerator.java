@@ -10,7 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /**
- * Renders a QR payload to a PNG image. Used only for the printable segment poster endpoint -
+ * Renders a QR payload to a PNG image. Used only for the printable event poster endpoint -
  * the app itself renders QR codes client-side from the raw payload (see QrController).
  */
 public final class QrCodeImageGenerator {

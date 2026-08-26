@@ -34,10 +34,9 @@ public class VolunteerRecordController {
 
     @GetMapping
     public ResponseEntity<List<VolunteerRecordResponseDTO>> getVolunteers(
-            @RequestParam(required = false) UUID eventId,
-            @RequestParam(required = false) String faculty) {
+            @RequestParam(required = false) UUID eventId) {
         List<VolunteerRecordResponseDTO> volunteers = (eventId != null)
-                ? volunteerService.getVolunteersByEventId(eventId, faculty)
+                ? volunteerService.getVolunteersByEventId(eventId)
                 : volunteerService.getAllVolunteers();
         return ResponseEntity.ok(volunteers);
     }

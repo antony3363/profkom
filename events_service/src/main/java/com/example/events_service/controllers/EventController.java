@@ -1,6 +1,7 @@
 package com.example.events_service.controllers;
 
 import com.example.events_service.DTOs.*;
+import com.example.events_service.exceptions.UnauthorizedException;
 import com.example.events_service.services.EventService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,11 +17,30 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EventController {
 
+    private static final String ROLE_ADMIN = "ADMIN";
+    private static final String ROLE_PROFORG_SCHOOL = "PROFORG_SCHOOL";
+
     private final EventService eventService;
 
+    /**
+     * Заявка на мероприятие. Доступно профоргу школы (только для своей школы, из
+     * X-School-Id) или администратору (может указать любую школу либо null для
+     * служебного мероприятия, скрытого из каталога).
+     */
     @PostMapping
-    public ResponseEntity<EventResponseDTO> createEvent(@Valid @RequestBody EventCreateRequestDTO dto) {
-        EventResponseDTO response = eventService.createEvent(dto);
+    public ResponseEntity<EventResponseDTO> submitEvent(
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @RequestHeader(value = "X-School-Id", required = false) Long callerSchoolId,
+            @Valid @RequestBody EventCreateRequestDTO dto) {
+        if (ROLE_PROFORG_SCHOOL.equals(role)) {
+            if (callerSchoolId == null || !callerSchoolId.equals(dto.getSchoolId())) {
+                throw new UnauthorizedException("Профорг школы может подавать заявки только от своей школы");
+            }
+        } else if (!ROLE_ADMIN.equals(role)) {
+            throw new UnauthorizedException("Только профорг школы или администратор может создавать мероприятия");
+        }
+
+        EventResponseDTO response = eventService.submitEvent(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -50,9 +70,46 @@ public class EventController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/{eventId}/accept")
+    public ResponseEntity<EventResponseDTO> acceptEvent(
+            @PathVariable UUID eventId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @RequestHeader(value = "X-Person-Id", required = false) Long reviewerId,
+            @Valid @RequestBody EventModerationDecisionDTO decision) {
+        requireAdmin(role, reviewerId);
+        EventResponseDTO response = eventService.acceptEvent(eventId, decision, reviewerId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{eventId}/defer")
+    public ResponseEntity<EventResponseDTO> deferEvent(
+            @PathVariable UUID eventId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @RequestHeader(value = "X-Person-Id", required = false) Long reviewerId) {
+        requireAdmin(role, reviewerId);
+        EventResponseDTO response = eventService.deferEvent(eventId, reviewerId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{eventId}/reject")
+    public ResponseEntity<EventResponseDTO> rejectEvent(
+            @PathVariable UUID eventId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @RequestHeader(value = "X-Person-Id", required = false) Long reviewerId) {
+        requireAdmin(role, reviewerId);
+        EventResponseDTO response = eventService.rejectEvent(eventId, reviewerId);
+        return ResponseEntity.ok(response);
+    }
+
     @DeleteMapping("/{eventId}")
     public ResponseEntity<Void> deleteEvent(@PathVariable UUID eventId) {
         eventService.deleteEvent(eventId);
         return ResponseEntity.noContent().build();
+    }
+
+    private void requireAdmin(String role, Long callerId) {
+        if (!ROLE_ADMIN.equals(role) || callerId == null) {
+            throw new UnauthorizedException("Решения по заявкам принимает только администратор");
+        }
     }
 }

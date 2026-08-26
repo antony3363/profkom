@@ -2,15 +2,15 @@ package com.example.events_service.services;
 
 import com.example.events_service.DTOs.*;
 import com.example.events_service.entities.Event;
-import com.example.events_service.entities.SegmentEvent;
+import com.example.events_service.enums.EventModerationStatus;
 import com.example.events_service.enums.EventStatus;
 import com.example.events_service.exceptions.EntityNotFoundException;
 import com.example.events_service.repositories.EventRepository;
-import com.example.events_service.repositories.SegmentEventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -20,10 +20,9 @@ import java.util.stream.Collectors;
 public class EventService {
 
     private final EventRepository eventRepository;
-    private final SegmentEventRepository segmentEventRepository;
 
     @Transactional
-    public EventResponseDTO createEvent(EventCreateRequestDTO dto) {
+    public EventResponseDTO submitEvent(EventCreateRequestDTO dto) {
         Event event = Event.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
@@ -35,29 +34,12 @@ public class EventService {
                 .endAt(dto.getEndAt())
                 .availableGroupIds(dto.getAvailableGroupIds())
                 .ownerId(dto.getOwnerId())
-                .attendanceType(dto.getAttendanceType())
+                .schoolId(dto.getSchoolId())
+                .requestedPointsPerAttendee(dto.getRequestedPointsPerAttendee())
                 .registrationRequired(dto.isRegistrationRequired())
                 .status(EventStatus.DRAFT)
+                .moderationStatus(EventModerationStatus.SUBMITTED)
                 .build();
-
-        if (dto.getSegmentEvents() != null) {
-            Event finalEvent = event;
-            List<SegmentEvent> segmentEvents = dto.getSegmentEvents().stream()
-                    .map(segmentDto -> SegmentEvent.builder()
-                            .event(finalEvent)
-                            //.segmentId(segmentDto.getSegmentId())
-                            .title(segmentDto.getTitle())
-                            .description(segmentDto.getDescription())
-                            //.shortDescription(segmentDto.getShortDescription())
-                            .geoPoint(segmentDto.getGeoPoint())
-                            .startAt(segmentDto.getStartAt())
-                            .endAt(segmentDto.getEndAt())
-                            .pointGain(segmentDto.getPointGain())
-                            .orderIndex(segmentDto.getOrderIndex())
-                            .build())
-                    .collect(Collectors.toList());
-            event.setSegmentEvents(segmentEvents);
-        }
 
         event = eventRepository.save(event);
         return mapToResponseDTO(event);
@@ -74,13 +56,13 @@ public class EventService {
     public List<EventCatalogDTO> getAllEventsForCatalog() {
         List<Event> events = eventRepository.findAll();
         return events.stream()
-                .filter(event -> event.getStatus() == EventStatus.PUBLISHED)
+                .filter(event -> event.getStatus() == EventStatus.PUBLISHED && event.getSchoolId() != null)
                 .map(this::mapToCatalogDTO)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public EventShortDescriptionResponse getShortEventDescription(UUID eventId){
+    public EventShortDescriptionResponse getShortEventDescription(UUID eventId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
         return mapToShortDescription(event);
@@ -100,9 +82,50 @@ public class EventService {
         if (dto.getStartAt() != null) event.setStartAt(dto.getStartAt());
         if (dto.getEndAt() != null) event.setEndAt(dto.getEndAt());
         if (dto.getAvailableGroupIds() != null) event.setAvailableGroupIds(dto.getAvailableGroupIds());
-        if (dto.getAttendanceType() != null) event.setAttendanceType(dto.getAttendanceType());
         if (dto.getRegistrationRequired() != null) event.setRegistrationRequired(dto.getRegistrationRequired());
         if (dto.getStatus() != null) event.setStatus(dto.getStatus());
+
+        event = eventRepository.save(event);
+        return mapToResponseDTO(event);
+    }
+
+    @Transactional
+    public EventResponseDTO acceptEvent(UUID eventId, EventModerationDecisionDTO decision, long reviewerId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
+
+        event.setPointsPerAttendee(decision.getPointsPerAttendee());
+        event.setModerationStatus(EventModerationStatus.APPROVED);
+        event.setStatus(EventStatus.PUBLISHED);
+        event.setReviewedBy(reviewerId);
+        event.setReviewedAt(LocalDateTime.now());
+
+        event = eventRepository.save(event);
+        return mapToResponseDTO(event);
+    }
+
+    @Transactional
+    public EventResponseDTO deferEvent(UUID eventId, long reviewerId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
+
+        event.setModerationStatus(EventModerationStatus.DEFERRED);
+        event.setReviewedBy(reviewerId);
+        event.setReviewedAt(LocalDateTime.now());
+
+        event = eventRepository.save(event);
+        return mapToResponseDTO(event);
+    }
+
+    @Transactional
+    public EventResponseDTO rejectEvent(UUID eventId, long reviewerId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
+
+        event.setModerationStatus(EventModerationStatus.REJECTED);
+        event.setStatus(EventStatus.CANCELLED);
+        event.setReviewedBy(reviewerId);
+        event.setReviewedAt(LocalDateTime.now());
 
         event = eventRepository.save(event);
         return mapToResponseDTO(event);
@@ -116,15 +139,7 @@ public class EventService {
         eventRepository.deleteById(eventId);
     }
 
-
-
-
-
     private EventResponseDTO mapToResponseDTO(Event event) {
-        List<SegmentEventResponseDTO> segmentEvents = event.getSegmentEvents().stream()
-                .map(this::mapSegmentEventToResponseDTO)
-                .collect(Collectors.toList());
-
         return EventResponseDTO.builder()
                 .eventId(event.getEventId())
                 .title(event.getTitle())
@@ -137,12 +152,16 @@ public class EventService {
                 .endAt(event.getEndAt())
                 .availableGroupIds(event.getAvailableGroupIds())
                 .ownerId(event.getOwnerId())
+                .schoolId(event.getSchoolId())
                 .status(event.getStatus())
+                .moderationStatus(event.getModerationStatus())
+                .requestedPointsPerAttendee(event.getRequestedPointsPerAttendee())
+                .pointsPerAttendee(event.getPointsPerAttendee())
+                .reviewedBy(event.getReviewedBy())
+                .reviewedAt(event.getReviewedAt())
                 .registrationRequired(event.isRegistrationRequired())
-                .attendanceType(event.getAttendanceType())
                 .createdAt(event.getCreatedAt())
                 .updatedAt(event.getUpdatedAt())
-                .segmentEvents(segmentEvents)
                 .build();
     }
 
@@ -155,29 +174,11 @@ public class EventService {
                 .startAt(event.getStartAt())
                 .endAt(event.getEndAt())
                 .registrationEndAt(event.getRegistrationEndAt())
+                .pointsPerAttendee(event.getPointsPerAttendee())
                 .build();
     }
 
-
-    private SegmentEventResponseDTO mapSegmentEventToResponseDTO(SegmentEvent segmentEvent) {
-        return SegmentEventResponseDTO.builder()
-                .segmentEventId(segmentEvent.getSegmentEventId())
-                .eventId(segmentEvent.getEvent().getEventId())
-                //.segmentId(segmentEvent.getSegmentId())
-                .title(segmentEvent.getTitle())
-                .description(segmentEvent.getDescription())
-                //.shortDescription(segmentEvent.getShortDescription())
-                .geoPoint(segmentEvent.getGeoPoint())
-                .startAt(segmentEvent.getStartAt())
-                .endAt(segmentEvent.getEndAt())
-                .pointGain(segmentEvent.getPointGain())
-                .orderIndex(segmentEvent.getOrderIndex())
-                .createdAt(segmentEvent.getCreatedAt())
-                .updatedAt(segmentEvent.getUpdatedAt())
-                .build();
-    }
-
-    private EventShortDescriptionResponse mapToShortDescription(Event event){
+    private EventShortDescriptionResponse mapToShortDescription(Event event) {
         return EventShortDescriptionResponse.builder()
                 .eventId(event.getEventId())
                 .title(event.getTitle())
@@ -185,6 +186,5 @@ public class EventService {
                 .startAt(event.getStartAt())
                 .endAt(event.getEndAt())
                 .build();
-
     }
 }
