@@ -14,5 +14,6 @@ public class UserResponseDTO {
     private UUID userId;
     private long personId;
     private UserRole role;
+    private Long schoolId;
     private LocalDateTime createdAt;
 }

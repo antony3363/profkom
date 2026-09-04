@@ -51,8 +51,8 @@ SERVICES = [
                          "FK↗Shop related_purchase_id (nullable)", "description", "created_at"],
     }),
     ("Shop Service", "#FBE4EC", "#C24E82", "#C24E82", {
-        "Category": ["PK category_id", "FK parent_id (nullable)", "title", "slug", "created_at"],
-        "Product": ["PK product_id", "FK category_id", "title", "slug", "description", "price (базовая)",
+        "Category": ["PK category_id", "FK parent_id (nullable)", "title", "created_at"],
+        "Product": ["PK product_id", "FK category_id", "title", "description", "price (базовая)",
                     "status (DRAFT/PUBLISHED/ARCHIVED)", "FK cover_media_id (nullable)",
                     "created_at", "updated_at", "deleted_at"],
         "ProductVariant": ["PK variant_id", "FK product_id", "size (nullable, ENUM XS..XXL)",

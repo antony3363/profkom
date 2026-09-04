@@ -3,7 +3,6 @@ package com.example.shop_service.services;
 import com.example.shop_service.DTOs.CategoryCreateRequestDTO;
 import com.example.shop_service.DTOs.CategoryResponseDTO;
 import com.example.shop_service.entities.Category;
-import com.example.shop_service.exceptions.DuplicateRecordException;
 import com.example.shop_service.exceptions.EntityNotFoundException;
 import com.example.shop_service.repositories.CategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,10 +21,6 @@ public class CategoryService {
 
     @Transactional
     public CategoryResponseDTO createCategory(CategoryCreateRequestDTO dto) {
-        if (categoryRepository.existsBySlug(dto.getSlug())) {
-            throw new DuplicateRecordException("Category with slug " + dto.getSlug() + " already exists");
-        }
-
         Category parent = null;
         if (dto.getParentId() != null) {
             parent = categoryRepository.findById(dto.getParentId())
@@ -35,10 +30,9 @@ public class CategoryService {
         Category category = Category.builder()
                 .parent(parent)
                 .title(dto.getTitle())
-                .slug(dto.getSlug())
                 .build();
 
-        category = categoryRepository.save(category);
+        category = categoryRepository.saveAndFlush(category);
         return mapToResponseDTO(category);
     }
 
@@ -70,7 +64,6 @@ public class CategoryService {
                 .categoryId(category.getCategoryId())
                 .parentId(category.getParent() != null ? category.getParent().getCategoryId() : null)
                 .title(category.getTitle())
-                .slug(category.getSlug())
                 .createdAt(category.getCreatedAt())
                 .build();
     }

@@ -2,23 +2,15 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="eureka_server" />
+        <module name="gateway_service" />
       </profile>
       <profile name="Annotation profile for transactions_service" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
-          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
-        </processorPath>
-        <module name="auth_service" />
-        <module name="transactions_service" />
-      </profile>
-      <profile name="Annotation profile for shop_service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
@@ -27,8 +19,10 @@
         </processorPath>
         <module name="profile_service" />
         <module name="check_in_service" />
+        <module name="auth_service" />
         <module name="shop_service" />
         <module name="events_service" />
+        <module name="transactions_service" />
       </profile>
     </annotationProcessing>
   </component>
@@ -36,7 +30,9 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="auth_service" options="-parameters" />
       <module name="check_in_service" options="-parameters" />
+      <module name="eureka_server" options="-parameters" />
       <module name="events_service" options="-parameters" />
+      <module name="gateway_service" options="-parameters" />
       <module name="profile_service" options="-parameters" />
       <module name="shop_service" options="-parameters" />
       <module name="transactions_service" options="-parameters" />

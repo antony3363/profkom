@@ -28,9 +28,6 @@ public class Category {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "slug", nullable = false, unique = true)
-    private String slug;
-
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

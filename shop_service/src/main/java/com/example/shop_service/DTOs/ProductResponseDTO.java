@@ -15,7 +15,6 @@ public class ProductResponseDTO {
     private UUID productId;
     private UUID categoryId;
     private String title;
-    private String slug;
     private String description;
     private long price;
     private ProductStatus status;

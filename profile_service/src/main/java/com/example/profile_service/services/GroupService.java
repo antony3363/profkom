@@ -28,7 +28,7 @@ public class GroupService {
                 .orElseThrow(() -> new EntityNotFoundException("Program not found with id: " + dto.getProgramId()));
 
         Group group = Group.builder().title(dto.getTitle()).program(program).build();
-        group = groupRepository.save(group);
+        group = groupRepository.saveAndFlush(group);
         return mapToResponseDTO(group);
     }
 
@@ -51,7 +51,7 @@ public class GroupService {
     public GroupResponseDTO assignProforg(Long groupId, ProforgAssignRequestDTO dto) {
         Group group = findGroup(groupId);
         group.setProforgId(dto.getProforgId());
-        group = groupRepository.save(group);
+        group = groupRepository.saveAndFlush(group);
         return mapToResponseDTO(group);
     }
 

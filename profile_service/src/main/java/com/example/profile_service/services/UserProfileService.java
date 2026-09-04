@@ -53,8 +53,28 @@ public class UserProfileService {
                 .image(dto.getImage())
                 .build();
 
-        profile = userProfileRepository.save(profile);
+        profile = userProfileRepository.saveAndFlush(profile);
         return mapToResponseDTO(profile);
+    }
+
+    /**
+     * Вызывается consumer'ом user-registered из Kafka. В отличие от createProfile
+     * (админский/тестовый путь) — молча пропускает, если профиль уже есть (не
+     * должно происходить в норме, но событие может доставиться повторно) вместо
+     * ошибки, так как здесь нет вызывающей стороны, которой можно вернуть 409.
+     */
+    @Transactional
+    public void createFromRegistration(long personId, String email, String firstName, String lastName) {
+        if (userProfileRepository.existsById(personId) || userProfileRepository.existsByEmail(email)) {
+            return;
+        }
+        UserProfile profile = UserProfile.builder()
+                .personId(personId)
+                .firstName(firstName)
+                .lastName(lastName)
+                .email(email)
+                .build();
+        userProfileRepository.saveAndFlush(profile);
     }
 
     @Transactional(readOnly = true)
@@ -97,7 +117,7 @@ public class UserProfileService {
             profile.setGroup(resolveGroup(dto.getGroupId()));
         }
 
-        profile = userProfileRepository.save(profile);
+        profile = userProfileRepository.saveAndFlush(profile);
         return mapToResponseDTO(profile);
     }
 

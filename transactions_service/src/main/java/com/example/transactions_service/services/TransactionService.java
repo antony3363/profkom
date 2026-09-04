@@ -46,7 +46,7 @@ public class TransactionService {
                 .description(dto.getDescription())
                 .build();
 
-        return mapToResponseDTO(transactionRepository.save(transaction));
+        return mapToResponseDTO(transactionRepository.saveAndFlush(transaction));
     }
 
     /**
@@ -69,7 +69,7 @@ public class TransactionService {
                 .description(dto.getDescription())
                 .build();
 
-        return mapToResponseDTO(transactionRepository.save(transaction));
+        return mapToResponseDTO(transactionRepository.saveAndFlush(transaction));
     }
 
     /**
@@ -92,7 +92,7 @@ public class TransactionService {
                 .description(dto.getDescription())
                 .build();
 
-        return mapToResponseDTO(transactionRepository.save(transaction));
+        return mapToResponseDTO(transactionRepository.saveAndFlush(transaction));
     }
 
     /**
@@ -113,7 +113,7 @@ public class TransactionService {
                 .description(dto.getDescription())
                 .build();
 
-        return mapToResponseDTO(transactionRepository.save(transaction));
+        return mapToResponseDTO(transactionRepository.saveAndFlush(transaction));
     }
 
     /**
@@ -135,7 +135,7 @@ public class TransactionService {
                 .description(dto.getDescription())
                 .build();
 
-        return mapToResponseDTO(transactionRepository.save(transaction));
+        return mapToResponseDTO(transactionRepository.saveAndFlush(transaction));
     }
 
     @Transactional(readOnly = true)

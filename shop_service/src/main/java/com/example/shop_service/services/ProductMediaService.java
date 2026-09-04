@@ -40,11 +40,11 @@ public class ProductMediaService {
                 .sortOrder(dto.getSortOrder())
                 .build();
 
-        media = productMediaRepository.save(media);
+        media = productMediaRepository.saveAndFlush(media);
 
         if (media.isCover()) {
             product.setCoverMediaId(media.getMediaId());
-            productRepository.save(product);
+            productRepository.saveAndFlush(product);
         }
 
         return mapToResponseDTO(media);

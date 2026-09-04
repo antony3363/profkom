@@ -32,7 +32,7 @@ public class RegistrationService {
                 .eventId(dto.getEventId())
                 .build();
 
-        registration = registrationRepository.save(registration);
+        registration = registrationRepository.saveAndFlush(registration);
         return mapToResponseDTO(registration);
     }
 

@@ -27,7 +27,7 @@ public class WalletService {
     @Transactional
     public Wallet getOrCreatePersonalWallet(long userId, boolean isAdmin) {
         return walletRepository.findByOwnerUserIdAndWalletType(userId, WalletType.PERSONAL)
-                .orElseGet(() -> walletRepository.save(Wallet.builder()
+                .orElseGet(() -> walletRepository.saveAndFlush(Wallet.builder()
                         .walletType(WalletType.PERSONAL)
                         .ownerUserId(userId)
                         .balance(0L)
@@ -38,7 +38,7 @@ public class WalletService {
     @Transactional
     public Wallet getOrCreateSchoolWallet(long schoolId) {
         return walletRepository.findBySchoolIdAndWalletType(schoolId, WalletType.SCHOOL)
-                .orElseGet(() -> walletRepository.save(Wallet.builder()
+                .orElseGet(() -> walletRepository.saveAndFlush(Wallet.builder()
                         .walletType(WalletType.SCHOOL)
                         .schoolId(schoolId)
                         .balance(0L)

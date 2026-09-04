@@ -61,7 +61,7 @@ public class PurchaseService {
                 .amount(amount)
                 .status(PurchaseStatus.PENDING)
                 .build();
-        purchase = purchaseRepository.save(purchase);
+        purchase = purchaseRepository.saveAndFlush(purchase);
 
         try {
             UUID transactionId = transactionGrpcClient.chargePurchase(
@@ -72,11 +72,11 @@ public class PurchaseService {
             variant.setStock(variant.getStock() + dto.getCount());
             productVariantRepository.save(variant);
             purchase.setStatus(PurchaseStatus.CANCELLED);
-            purchaseRepository.save(purchase);
+            purchaseRepository.saveAndFlush(purchase);
             throw e;
         }
 
-        purchase = purchaseRepository.save(purchase);
+        purchase = purchaseRepository.saveAndFlush(purchase);
         return mapToResponseDTO(purchase);
     }
 
@@ -88,7 +88,7 @@ public class PurchaseService {
         Purchase purchase = getPendingPurchase(purchaseId);
         purchase.setStatus(PurchaseStatus.CONFIRMED);
         purchase.setTransactionId(transactionId);
-        purchase = purchaseRepository.save(purchase);
+        purchase = purchaseRepository.saveAndFlush(purchase);
         return mapToResponseDTO(purchase);
     }
 
@@ -101,7 +101,7 @@ public class PurchaseService {
         Purchase purchase = getPendingPurchase(purchaseId);
         restoreStock(purchase);
         purchase.setStatus(PurchaseStatus.CANCELLED);
-        purchase = purchaseRepository.save(purchase);
+        purchase = purchaseRepository.saveAndFlush(purchase);
         return mapToResponseDTO(purchase);
     }
 
@@ -117,7 +117,7 @@ public class PurchaseService {
                 "Возврат: " + purchase.getProductTitle());
         restoreStock(purchase);
         purchase.setStatus(PurchaseStatus.REFUNDED);
-        purchase = purchaseRepository.save(purchase);
+        purchase = purchaseRepository.saveAndFlush(purchase);
         return mapToResponseDTO(purchase);
     }
 

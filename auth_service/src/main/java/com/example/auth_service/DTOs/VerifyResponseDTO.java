@@ -10,5 +10,6 @@ import lombok.*;
 public class VerifyResponseDTO {
     private long personId;
     private UserRole role;
+    private Long schoolId;
     private long expiresAtEpochSeconds;
 }

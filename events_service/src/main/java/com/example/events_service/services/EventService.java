@@ -41,7 +41,7 @@ public class EventService {
                 .moderationStatus(EventModerationStatus.SUBMITTED)
                 .build();
 
-        event = eventRepository.save(event);
+        event = eventRepository.saveAndFlush(event);
         return mapToResponseDTO(event);
     }
 
@@ -85,7 +85,7 @@ public class EventService {
         if (dto.getRegistrationRequired() != null) event.setRegistrationRequired(dto.getRegistrationRequired());
         if (dto.getStatus() != null) event.setStatus(dto.getStatus());
 
-        event = eventRepository.save(event);
+        event = eventRepository.saveAndFlush(event);
         return mapToResponseDTO(event);
     }
 
@@ -100,7 +100,7 @@ public class EventService {
         event.setReviewedBy(reviewerId);
         event.setReviewedAt(LocalDateTime.now());
 
-        event = eventRepository.save(event);
+        event = eventRepository.saveAndFlush(event);
         return mapToResponseDTO(event);
     }
 
@@ -113,7 +113,7 @@ public class EventService {
         event.setReviewedBy(reviewerId);
         event.setReviewedAt(LocalDateTime.now());
 
-        event = eventRepository.save(event);
+        event = eventRepository.saveAndFlush(event);
         return mapToResponseDTO(event);
     }
 
@@ -127,7 +127,7 @@ public class EventService {
         event.setReviewedBy(reviewerId);
         event.setReviewedAt(LocalDateTime.now());
 
-        event = eventRepository.save(event);
+        event = eventRepository.saveAndFlush(event);
         return mapToResponseDTO(event);
     }
 

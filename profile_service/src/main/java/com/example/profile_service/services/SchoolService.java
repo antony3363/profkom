@@ -5,6 +5,8 @@ import com.example.profile_service.DTOs.SchoolCreateRequestDTO;
 import com.example.profile_service.DTOs.SchoolResponseDTO;
 import com.example.profile_service.entities.School;
 import com.example.profile_service.exceptions.EntityNotFoundException;
+import com.example.profile_service.kafka.SchoolProforgChangedEvent;
+import com.example.profile_service.kafka.SchoolProforgChangedProducer;
 import com.example.profile_service.repositories.SchoolRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 public class SchoolService {
 
     private final SchoolRepository schoolRepository;
+    private final SchoolProforgChangedProducer schoolProforgChangedProducer;
 
     @Transactional
     public SchoolResponseDTO createSchool(SchoolCreateRequestDTO dto) {
@@ -43,8 +46,10 @@ public class SchoolService {
     @Transactional
     public SchoolResponseDTO assignProforg(Long schoolId, ProforgAssignRequestDTO dto) {
         School school = findSchool(schoolId);
+        Long oldProforgId = school.getProforgId();
         school.setProforgId(dto.getProforgId());
         school = schoolRepository.save(school);
+        schoolProforgChangedProducer.publish(new SchoolProforgChangedEvent(schoolId, oldProforgId, dto.getProforgId()));
         return mapToResponseDTO(school);
     }
 

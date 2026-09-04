@@ -17,4 +17,9 @@ public class RoleUpdateRequestDTO {
 
     @NotNull
     private UserRole role;
+
+    /**
+     * Обязательно только при role=PROFORG_SCHOOL — какой школой распоряжается.
+     */
+    private Long schoolId;
 }

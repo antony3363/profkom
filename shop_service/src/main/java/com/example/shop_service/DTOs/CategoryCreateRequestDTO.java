@@ -14,8 +14,5 @@ public class CategoryCreateRequestDTO {
     @NotBlank
     private String title;
 
-    @NotBlank
-    private String slug;
-
     private UUID parentId;
 }

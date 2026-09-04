@@ -28,7 +28,7 @@ public class ProgramService {
                 .orElseThrow(() -> new EntityNotFoundException("School not found with id: " + dto.getSchoolId()));
 
         Program program = Program.builder().title(dto.getTitle()).school(school).build();
-        program = programRepository.save(program);
+        program = programRepository.saveAndFlush(program);
         return mapToResponseDTO(program);
     }
 
@@ -51,7 +51,7 @@ public class ProgramService {
     public ProgramResponseDTO assignProforg(Long programId, ProforgAssignRequestDTO dto) {
         Program program = findProgram(programId);
         program.setProforgId(dto.getProforgId());
-        program = programRepository.save(program);
+        program = programRepository.saveAndFlush(program);
         return mapToResponseDTO(program);
     }
 

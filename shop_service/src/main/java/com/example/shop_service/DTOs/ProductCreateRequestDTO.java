@@ -19,9 +19,6 @@ public class ProductCreateRequestDTO {
     @NotBlank
     private String title;
 
-    @NotBlank
-    private String slug;
-
     private String description;
 
     @NotNull

@@ -83,7 +83,7 @@ public class CheckInService {
                 .type(dto.getType())
                 .build();
 
-        checkIn = checkInRepository.save(checkIn);
+        checkIn = checkInRepository.saveAndFlush(checkIn);
 
         awardPointsIfApproved(event, personId);
 

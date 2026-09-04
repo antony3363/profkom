@@ -9,9 +9,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Валидация access-токена. В целевой архитектуре это делает API Gateway сам по
- * публичному ключу — этого сервиса-шлюза пока нет в репозитории, поэтому downstream-
- * сервисы (или тестовый вызов) могут проверить токен здесь.
+ * Валидация access-токена по схеме интроспекции — gateway_service вызывает этот
+ * эндпоинт на каждый запрос вместо локальной проверки подписи по публичному ключу
+ * (проще: не нужно распространять/публиковать RSA-ключ отдельным JWKS-эндпоинтом).
+ * Компромисс — лишний сетевой вызов на каждый запрос через Gateway; при таком
+ * масштабе (внутренний сервис профкома) это приемлемо.
  */
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -30,6 +32,7 @@ public class TokenController {
         return ResponseEntity.ok(VerifyResponseDTO.builder()
                 .personId(claims.personId())
                 .role(claims.role())
+                .schoolId(claims.schoolId())
                 .expiresAtEpochSeconds(claims.expiresAtEpochSeconds())
                 .build());
     }

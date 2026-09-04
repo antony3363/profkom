@@ -34,6 +34,13 @@ public class AppUser {
     @Column(name = "role", nullable = false)
     private UserRole role;
 
+    /**
+     * Заполняется только для роли PROFORG_SCHOOL — какой школой распоряжается.
+     * Null для остальных ролей.
+     */
+    @Column(name = "school_id")
+    private Long schoolId;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

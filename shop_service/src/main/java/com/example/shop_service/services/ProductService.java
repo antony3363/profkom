@@ -5,7 +5,6 @@ import com.example.shop_service.entities.Category;
 import com.example.shop_service.entities.Product;
 import com.example.shop_service.entities.ProductVariant;
 import com.example.shop_service.enums.ProductStatus;
-import com.example.shop_service.exceptions.DuplicateRecordException;
 import com.example.shop_service.exceptions.EntityNotFoundException;
 import com.example.shop_service.repositories.CategoryRepository;
 import com.example.shop_service.repositories.ProductRepository;
@@ -27,10 +26,6 @@ public class ProductService {
 
     @Transactional
     public ProductResponseDTO createProduct(ProductCreateRequestDTO dto) {
-        if (productRepository.existsBySlug(dto.getSlug())) {
-            throw new DuplicateRecordException("Product with slug " + dto.getSlug() + " already exists");
-        }
-
         Category category = null;
         if (dto.getCategoryId() != null) {
             category = categoryRepository.findById(dto.getCategoryId())
@@ -40,7 +35,6 @@ public class ProductService {
         Product product = Product.builder()
                 .category(category)
                 .title(dto.getTitle())
-                .slug(dto.getSlug())
                 .description(dto.getDescription())
                 .price(dto.getPrice())
                 .status(ProductStatus.DRAFT)
@@ -58,7 +52,7 @@ public class ProductService {
                 .collect(Collectors.toList());
         product.setVariants(variants);
 
-        product = productRepository.save(product);
+        product = productRepository.saveAndFlush(product);
         return mapToResponseDTO(product);
     }
 
@@ -91,7 +85,7 @@ public class ProductService {
             product.setCategory(category);
         }
 
-        product = productRepository.save(product);
+        product = productRepository.saveAndFlush(product);
         return mapToResponseDTO(product);
     }
 
@@ -100,7 +94,7 @@ public class ProductService {
         Product product = findActiveProduct(productId);
         product.setDeletedAt(LocalDateTime.now());
         product.setStatus(ProductStatus.ARCHIVED);
-        productRepository.save(product);
+        productRepository.saveAndFlush(product);
     }
 
     private Product findActiveProduct(UUID productId) {
@@ -121,7 +115,6 @@ public class ProductService {
                 .productId(product.getProductId())
                 .categoryId(product.getCategory() != null ? product.getCategory().getCategoryId() : null)
                 .title(product.getTitle())
-                .slug(product.getSlug())
                 .description(product.getDescription())
                 .price(product.getPrice())
                 .status(product.getStatus())

@@ -46,7 +46,7 @@ public class VolunteerService {
                 .event(event)
                 .build();
 
-        volunteerRecord = volunteerRepository.save(volunteerRecord);
+        volunteerRecord = volunteerRepository.saveAndFlush(volunteerRecord);
         return mapToResponseDTO(volunteerRecord);
     }
 

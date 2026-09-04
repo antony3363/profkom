@@ -65,12 +65,14 @@ public class Event {
     @Column(name = "school_id")
     private Long schoolId;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private EventStatus status;
 
     /**
      * Статус рассмотрения заявки Литвиновым — независим от status (публикации).
      */
+    @Enumerated(EnumType.STRING)
     @Column(name = "moderation_status", nullable = false)
     @Builder.Default
     private EventModerationStatus moderationStatus = EventModerationStatus.SUBMITTED;
