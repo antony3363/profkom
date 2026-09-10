@@ -27,7 +27,7 @@ private static final long serialVersionUID = 0L;
     super(builder);
   }
   private SearchPersonsRequest() {
-    personIds_ = emptyLongList();
+    lichnostIds_ = emptyLongList();
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor
@@ -43,35 +43,35 @@ private static final long serialVersionUID = 0L;
             com.example.profile_service.grpc.SearchPersonsRequest.class, com.example.profile_service.grpc.SearchPersonsRequest.Builder.class);
   }
 
-  public static final int PERSON_IDS_FIELD_NUMBER = 1;
+  public static final int LICHNOST_IDS_FIELD_NUMBER = 1;
   @SuppressWarnings("serial")
-  private com.google.protobuf.Internal.LongList personIds_ =
+  private com.google.protobuf.Internal.LongList lichnostIds_ =
       emptyLongList();
   /**
-   * <code>repeated int64 person_ids = 1;</code>
-   * @return A list containing the personIds.
+   * <code>repeated int64 lichnost_ids = 1;</code>
+   * @return A list containing the lichnostIds.
    */
   @java.lang.Override
   public java.util.List<java.lang.Long>
-      getPersonIdsList() {
-    return personIds_;
+      getLichnostIdsList() {
+    return lichnostIds_;
   }
   /**
-   * <code>repeated int64 person_ids = 1;</code>
-   * @return The count of personIds.
+   * <code>repeated int64 lichnost_ids = 1;</code>
+   * @return The count of lichnostIds.
    */
-  public int getPersonIdsCount() {
-    return personIds_.size();
+  public int getLichnostIdsCount() {
+    return lichnostIds_.size();
   }
   /**
-   * <code>repeated int64 person_ids = 1;</code>
+   * <code>repeated int64 lichnost_ids = 1;</code>
    * @param index The index of the element to return.
-   * @return The personIds at the given index.
+   * @return The lichnostIds at the given index.
    */
-  public long getPersonIds(int index) {
-    return personIds_.getLong(index);
+  public long getLichnostIds(int index) {
+    return lichnostIds_.getLong(index);
   }
-  private int personIdsMemoizedSerializedSize = -1;
+  private int lichnostIdsMemoizedSerializedSize = -1;
 
   private byte memoizedIsInitialized = -1;
   @java.lang.Override
@@ -88,12 +88,12 @@ private static final long serialVersionUID = 0L;
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
     getSerializedSize();
-    if (getPersonIdsList().size() > 0) {
+    if (getLichnostIdsList().size() > 0) {
       output.writeUInt32NoTag(10);
-      output.writeUInt32NoTag(personIdsMemoizedSerializedSize);
+      output.writeUInt32NoTag(lichnostIdsMemoizedSerializedSize);
     }
-    for (int i = 0; i < personIds_.size(); i++) {
-      output.writeInt64NoTag(personIds_.getLong(i));
+    for (int i = 0; i < lichnostIds_.size(); i++) {
+      output.writeInt64NoTag(lichnostIds_.getLong(i));
     }
     getUnknownFields().writeTo(output);
   }
@@ -106,17 +106,17 @@ private static final long serialVersionUID = 0L;
     size = 0;
     {
       int dataSize = 0;
-      for (int i = 0; i < personIds_.size(); i++) {
+      for (int i = 0; i < lichnostIds_.size(); i++) {
         dataSize += com.google.protobuf.CodedOutputStream
-          .computeInt64SizeNoTag(personIds_.getLong(i));
+          .computeInt64SizeNoTag(lichnostIds_.getLong(i));
       }
       size += dataSize;
-      if (!getPersonIdsList().isEmpty()) {
+      if (!getLichnostIdsList().isEmpty()) {
         size += 1;
         size += com.google.protobuf.CodedOutputStream
             .computeInt32SizeNoTag(dataSize);
       }
-      personIdsMemoizedSerializedSize = dataSize;
+      lichnostIdsMemoizedSerializedSize = dataSize;
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
@@ -133,8 +133,8 @@ private static final long serialVersionUID = 0L;
     }
     com.example.profile_service.grpc.SearchPersonsRequest other = (com.example.profile_service.grpc.SearchPersonsRequest) obj;
 
-    if (!getPersonIdsList()
-        .equals(other.getPersonIdsList())) return false;
+    if (!getLichnostIdsList()
+        .equals(other.getLichnostIdsList())) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
@@ -146,9 +146,9 @@ private static final long serialVersionUID = 0L;
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
-    if (getPersonIdsCount() > 0) {
-      hash = (37 * hash) + PERSON_IDS_FIELD_NUMBER;
-      hash = (53 * hash) + getPersonIdsList().hashCode();
+    if (getLichnostIdsCount() > 0) {
+      hash = (37 * hash) + LICHNOST_IDS_FIELD_NUMBER;
+      hash = (53 * hash) + getLichnostIdsList().hashCode();
     }
     hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
@@ -281,7 +281,7 @@ private static final long serialVersionUID = 0L;
     public Builder clear() {
       super.clear();
       bitField0_ = 0;
-      personIds_ = emptyLongList();
+      lichnostIds_ = emptyLongList();
       return this;
     }
 
@@ -316,8 +316,8 @@ private static final long serialVersionUID = 0L;
     private void buildPartial0(com.example.profile_service.grpc.SearchPersonsRequest result) {
       int from_bitField0_ = bitField0_;
       if (((from_bitField0_ & 0x00000001) != 0)) {
-        personIds_.makeImmutable();
-        result.personIds_ = personIds_;
+        lichnostIds_.makeImmutable();
+        result.lichnostIds_ = lichnostIds_;
       }
     }
 
@@ -333,14 +333,14 @@ private static final long serialVersionUID = 0L;
 
     public Builder mergeFrom(com.example.profile_service.grpc.SearchPersonsRequest other) {
       if (other == com.example.profile_service.grpc.SearchPersonsRequest.getDefaultInstance()) return this;
-      if (!other.personIds_.isEmpty()) {
-        if (personIds_.isEmpty()) {
-          personIds_ = other.personIds_;
-          personIds_.makeImmutable();
+      if (!other.lichnostIds_.isEmpty()) {
+        if (lichnostIds_.isEmpty()) {
+          lichnostIds_ = other.lichnostIds_;
+          lichnostIds_.makeImmutable();
           bitField0_ |= 0x00000001;
         } else {
-          ensurePersonIdsIsMutable();
-          personIds_.addAll(other.personIds_);
+          ensureLichnostIdsIsMutable();
+          lichnostIds_.addAll(other.lichnostIds_);
         }
         onChanged();
       }
@@ -372,16 +372,16 @@ private static final long serialVersionUID = 0L;
               break;
             case 8: {
               long v = input.readInt64();
-              ensurePersonIdsIsMutable();
-              personIds_.addLong(v);
+              ensureLichnostIdsIsMutable();
+              lichnostIds_.addLong(v);
               break;
             } // case 8
             case 10: {
               int length = input.readRawVarint32();
               int limit = input.pushLimit(length);
-              ensurePersonIdsIsMutable();
+              ensureLichnostIdsIsMutable();
               while (input.getBytesUntilLimit() > 0) {
-                personIds_.addLong(input.readInt64());
+                lichnostIds_.addLong(input.readInt64());
               }
               input.popLimit(limit);
               break;
@@ -403,85 +403,85 @@ private static final long serialVersionUID = 0L;
     }
     private int bitField0_;
 
-    private com.google.protobuf.Internal.LongList personIds_ = emptyLongList();
-    private void ensurePersonIdsIsMutable() {
-      if (!personIds_.isModifiable()) {
-        personIds_ = makeMutableCopy(personIds_);
+    private com.google.protobuf.Internal.LongList lichnostIds_ = emptyLongList();
+    private void ensureLichnostIdsIsMutable() {
+      if (!lichnostIds_.isModifiable()) {
+        lichnostIds_ = makeMutableCopy(lichnostIds_);
       }
       bitField0_ |= 0x00000001;
     }
     /**
-     * <code>repeated int64 person_ids = 1;</code>
-     * @return A list containing the personIds.
+     * <code>repeated int64 lichnost_ids = 1;</code>
+     * @return A list containing the lichnostIds.
      */
     public java.util.List<java.lang.Long>
-        getPersonIdsList() {
-      personIds_.makeImmutable();
-      return personIds_;
+        getLichnostIdsList() {
+      lichnostIds_.makeImmutable();
+      return lichnostIds_;
     }
     /**
-     * <code>repeated int64 person_ids = 1;</code>
-     * @return The count of personIds.
+     * <code>repeated int64 lichnost_ids = 1;</code>
+     * @return The count of lichnostIds.
      */
-    public int getPersonIdsCount() {
-      return personIds_.size();
+    public int getLichnostIdsCount() {
+      return lichnostIds_.size();
     }
     /**
-     * <code>repeated int64 person_ids = 1;</code>
+     * <code>repeated int64 lichnost_ids = 1;</code>
      * @param index The index of the element to return.
-     * @return The personIds at the given index.
+     * @return The lichnostIds at the given index.
      */
-    public long getPersonIds(int index) {
-      return personIds_.getLong(index);
+    public long getLichnostIds(int index) {
+      return lichnostIds_.getLong(index);
     }
     /**
-     * <code>repeated int64 person_ids = 1;</code>
+     * <code>repeated int64 lichnost_ids = 1;</code>
      * @param index The index to set the value at.
-     * @param value The personIds to set.
+     * @param value The lichnostIds to set.
      * @return This builder for chaining.
      */
-    public Builder setPersonIds(
+    public Builder setLichnostIds(
         int index, long value) {
 
-      ensurePersonIdsIsMutable();
-      personIds_.setLong(index, value);
+      ensureLichnostIdsIsMutable();
+      lichnostIds_.setLong(index, value);
       bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
     /**
-     * <code>repeated int64 person_ids = 1;</code>
-     * @param value The personIds to add.
+     * <code>repeated int64 lichnost_ids = 1;</code>
+     * @param value The lichnostIds to add.
      * @return This builder for chaining.
      */
-    public Builder addPersonIds(long value) {
+    public Builder addLichnostIds(long value) {
 
-      ensurePersonIdsIsMutable();
-      personIds_.addLong(value);
+      ensureLichnostIdsIsMutable();
+      lichnostIds_.addLong(value);
       bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
     /**
-     * <code>repeated int64 person_ids = 1;</code>
-     * @param values The personIds to add.
+     * <code>repeated int64 lichnost_ids = 1;</code>
+     * @param values The lichnostIds to add.
      * @return This builder for chaining.
      */
-    public Builder addAllPersonIds(
+    public Builder addAllLichnostIds(
         java.lang.Iterable<? extends java.lang.Long> values) {
-      ensurePersonIdsIsMutable();
+      ensureLichnostIdsIsMutable();
       com.google.protobuf.AbstractMessageLite.Builder.addAll(
-          values, personIds_);
+          values, lichnostIds_);
       bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
     /**
-     * <code>repeated int64 person_ids = 1;</code>
+     * <code>repeated int64 lichnost_ids = 1;</code>
      * @return This builder for chaining.
      */
-    public Builder clearPersonIds() {
-      personIds_ = emptyLongList();
+    public Builder clearLichnostIds() {
+      lichnostIds_ = emptyLongList();
       bitField0_ = (bitField0_ & ~0x00000001);
       onChanged();
       return this;

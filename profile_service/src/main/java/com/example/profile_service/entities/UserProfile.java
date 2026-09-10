@@ -8,9 +8,9 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 /**
- * person_id не генерируется здесь — приходит извне от Auth Service (событие
- * UserRegistered при первом входе через SSO ТПУ; Kafka ещё не подключена, поэтому
- * пока personId передаётся явно при создании профиля).
+ * lichnost_id не генерируется здесь — приходит извне от Auth Service, либо через
+ * событие UserRegistered в Kafka (автоматически, если пришли email/имя), либо
+ * явно через POST /profiles (ручной путь, когда SSO их не прислала).
  */
 @Entity
 @Table(name = "user_profiles")
@@ -22,8 +22,8 @@ import java.time.LocalDateTime;
 public class UserProfile {
 
     @Id
-    @Column(name = "person_id", nullable = false, updatable = false)
-    private Long personId;
+    @Column(name = "lichnost_id", nullable = false, updatable = false)
+    private Long lichnostId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id", referencedColumnName = "group_id")

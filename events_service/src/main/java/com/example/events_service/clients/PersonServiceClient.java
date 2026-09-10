@@ -20,13 +20,13 @@ public class PersonServiceClient {
 
     private final PersonGrpcServiceGrpc.PersonGrpcServiceBlockingStub personGrpcServiceBlockingStub;
 
-    public List<PersonLookupDTO> searchPersons(List<Long> personIds) {
-        if (personIds.isEmpty()) {
+    public List<PersonLookupDTO> searchPersons(List<Long> lichnostIds) {
+        if (lichnostIds.isEmpty()) {
             return List.of();
         }
 
         SearchPersonsRequest request = SearchPersonsRequest.newBuilder()
-                .addAllPersonIds(personIds)
+                .addAllLichnostIds(lichnostIds)
                 .build();
 
         SearchPersonsResponse response = personGrpcServiceBlockingStub.searchPersons(request);
@@ -38,7 +38,7 @@ public class PersonServiceClient {
 
     private PersonLookupDTO toDto(PersonSummary summary) {
         return new PersonLookupDTO(
-                summary.getPersonId(),
+                summary.getLichnostId(),
                 summary.getFullName(),
                 summary.hasGroupTitle() ? summary.getGroupTitle() : null);
     }

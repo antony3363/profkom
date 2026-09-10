@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Objects;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -28,14 +27,14 @@ public class UserService {
      * если пришли email/имя; заглушка SSO ТПУ пока не обязана их присылать).
      */
     @Transactional
-    public AppUser getOrCreateUser(long personId, String email, String firstName, String lastName) {
-        return appUserRepository.findByPersonId(personId)
+    public AppUser getOrCreateUser(long lichnostId, String email, String firstName, String lastName) {
+        return appUserRepository.findByLichnostId(lichnostId)
                 .orElseGet(() -> {
                     AppUser created = appUserRepository.saveAndFlush(AppUser.builder()
-                            .personId(personId)
+                            .lichnostId(lichnostId)
                             .role(UserRole.STUDENT)
                             .build());
-                    userRegisteredProducer.publish(new UserRegisteredEvent(personId, email, firstName, lastName));
+                    userRegisteredProducer.publish(new UserRegisteredEvent(lichnostId, email, firstName, lastName));
                     return created;
                 });
     }
@@ -49,7 +48,7 @@ public class UserService {
     @Transactional
     public void applySchoolProforgChange(long schoolId, Long oldProforgId, Long newProforgId) {
         if (oldProforgId != null && !oldProforgId.equals(newProforgId)) {
-            appUserRepository.findByPersonId(oldProforgId).ifPresent(user -> {
+            appUserRepository.findByLichnostId(oldProforgId).ifPresent(user -> {
                 if (user.getRole() == UserRole.PROFORG_SCHOOL && Objects.equals(user.getSchoolId(), schoolId)) {
                     user.setRole(UserRole.STUDENT);
                     user.setSchoolId(null);
@@ -58,8 +57,8 @@ public class UserService {
             });
         }
         if (newProforgId != null) {
-            AppUser user = appUserRepository.findByPersonId(newProforgId)
-                    .orElseGet(() -> AppUser.builder().personId(newProforgId).role(UserRole.STUDENT).build());
+            AppUser user = appUserRepository.findByLichnostId(newProforgId)
+                    .orElseGet(() -> AppUser.builder().lichnostId(newProforgId).role(UserRole.STUDENT).build());
             user.setRole(UserRole.PROFORG_SCHOOL);
             user.setSchoolId(schoolId);
             appUserRepository.saveAndFlush(user);
@@ -67,12 +66,12 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserResponseDTO getUserById(UUID userId) {
+    public UserResponseDTO getUserById(Long userId) {
         return mapToResponseDTO(findUser(userId));
     }
 
     @Transactional
-    public UserResponseDTO updateRole(UUID userId, RoleUpdateRequestDTO dto) {
+    public UserResponseDTO updateRole(Long userId, RoleUpdateRequestDTO dto) {
         AppUser user = findUser(userId);
         user.setRole(dto.getRole());
         // schoolId имеет смысл только для PROFORG_SCHOOL — для остальных ролей чистим
@@ -81,7 +80,7 @@ public class UserService {
         return mapToResponseDTO(user);
     }
 
-    private AppUser findUser(UUID userId) {
+    private AppUser findUser(Long userId) {
         return appUserRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
     }
@@ -89,7 +88,7 @@ public class UserService {
     private UserResponseDTO mapToResponseDTO(AppUser user) {
         return UserResponseDTO.builder()
                 .userId(user.getUserId())
-                .personId(user.getPersonId())
+                .lichnostId(user.getLichnostId())
                 .role(user.getRole())
                 .schoolId(user.getSchoolId())
                 .createdAt(user.getCreatedAt())

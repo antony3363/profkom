@@ -12,7 +12,7 @@ import java.security.MessageDigest;
 import java.util.HexFormat;
 
 /**
- * Generates and verifies the static, non-expiring person QR token: "{personId}.{hmacSignature}".
+ * Generates and verifies the static, non-expiring person QR token: "{lichnostId}.{hmacSignature}".
  * Static by product decision: it never expires and has no revocation mechanism, so a leaked
  * QR stays valid forever - accepted tradeoff for attendance tracking (not payments).
  */
@@ -25,12 +25,12 @@ public class QrTokenService {
         this.secret = secret;
     }
 
-    public String generatePersonPayload(long personId) {
-        String data = String.valueOf(personId);
+    public String generatePersonPayload(long lichnostId) {
+        String data = String.valueOf(lichnostId);
         return data + "." + sign(data);
     }
 
-    public long verifyAndExtractPersonId(String payload) {
+    public long verifyAndExtractLichnostId(String payload) {
         if (payload == null) {
             throw new InvalidQrPayloadException("QR payload is missing");
         }
@@ -40,9 +40,9 @@ public class QrTokenService {
             throw new InvalidQrPayloadException("Malformed person QR payload");
         }
 
-        long personId;
+        long lichnostId;
         try {
-            personId = Long.parseLong(parts[0]);
+            lichnostId = Long.parseLong(parts[0]);
         } catch (NumberFormatException e) {
             throw new InvalidQrPayloadException("Malformed person QR payload");
         }
@@ -54,7 +54,7 @@ public class QrTokenService {
             throw new InvalidQrPayloadException("Invalid person QR signature");
         }
 
-        return personId;
+        return lichnostId;
     }
 
     private String sign(String data) {

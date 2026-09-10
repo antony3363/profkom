@@ -10,10 +10,10 @@ public interface PersonSummaryOrBuilder extends
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   * <code>int64 person_id = 1;</code>
-   * @return The personId.
+   * <code>int64 lichnost_id = 1;</code>
+   * @return The lichnostId.
    */
-  long getPersonId();
+  long getLichnostId();
 
   /**
    * <code>string full_name = 2;</code>

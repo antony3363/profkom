@@ -11,5 +11,5 @@ import java.util.UUID;
 public interface CheckInRepository extends JpaRepository<CheckIn, UUID> {
     List<CheckIn> findByRegistration_RegistrationId(UUID registrationId);
     List<CheckIn> findByEventId(UUID eventId);
-    boolean existsByPersonIdAndEventId(long personId, UUID eventId);
+    boolean existsByLichnostIdAndEventId(long lichnostId, UUID eventId);
 }

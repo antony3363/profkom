@@ -12,7 +12,7 @@ import java.util.UUID;
 public class RegistrationResponseDTO {
 
     private UUID registrationId;
-    private long personId;
+    private long lichnostId;
     private UUID eventId;
     private LocalDateTime createdAt;
 }

@@ -32,8 +32,8 @@ public class CheckIn {
     @JoinColumn(name = "registration_id", updatable = false, referencedColumnName = "registration_id")
     private Registration registration;
 
-    @Column(name = "person_id", nullable = false, updatable = false)
-    private long personId;
+    @Column(name = "lichnost_id", nullable = false, updatable = false)
+    private long lichnostId;
 
     @Column(name = "event_id", nullable = false, updatable = false)
     private UUID eventId;

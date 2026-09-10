@@ -16,12 +16,12 @@ public class PersonGrpcServer extends PersonGrpcServiceGrpc.PersonGrpcServiceImp
     @Override
     public void searchPersons(SearchPersonsRequest request, StreamObserver<SearchPersonsResponse> responseObserver) {
         try {
-            var profiles = userProfileRepository.findByPersonIdIn(request.getPersonIdsList());
+            var profiles = userProfileRepository.findByLichnostIdIn(request.getLichnostIdsList());
 
             SearchPersonsResponse.Builder response = SearchPersonsResponse.newBuilder();
             for (UserProfile profile : profiles) {
                 PersonSummary.Builder summary = PersonSummary.newBuilder()
-                        .setPersonId(profile.getPersonId())
+                        .setLichnostId(profile.getLichnostId())
                         .setFullName(buildFullName(profile));
                 if (profile.getGroup() != null) {
                     summary.setGroupTitle(profile.getGroup().getTitle());

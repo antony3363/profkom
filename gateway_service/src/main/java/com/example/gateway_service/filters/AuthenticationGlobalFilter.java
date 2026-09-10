@@ -13,7 +13,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 /**
- * Единственная точка, которой можно доверять заголовки X-Person-Id/X-User-Role/
+ * Единственная точка, которой можно доверять заголовки X-Lichnost-Id/X-User-Role/
  * X-School-Id — downstream-сервисы читают их напрямую, не перепроверяя. Поэтому
  * здесь: (1) всегда стираем то, что прислал клиент, (2) если есть Authorization —
  * подтверждаем токен интроспекцией в auth_service и подставляем свои заголовки,
@@ -27,7 +27,7 @@ import reactor.core.publisher.Mono;
 @Component
 public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
 
-    private static final String HEADER_PERSON_ID = "X-Person-Id";
+    private static final String HEADER_LICHNOST_ID = "X-Lichnost-Id";
     private static final String HEADER_USER_ROLE = "X-User-Role";
     private static final String HEADER_SCHOOL_ID = "X-School-Id";
 
@@ -44,7 +44,7 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
 
         ServerHttpRequest strippedRequest = request.mutate()
                 .headers(headers -> {
-                    headers.remove(HEADER_PERSON_ID);
+                    headers.remove(HEADER_LICHNOST_ID);
                     headers.remove(HEADER_USER_ROLE);
                     headers.remove(HEADER_SCHOOL_ID);
                 })
@@ -64,7 +64,7 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
                 .flatMap(verify -> {
                     ServerHttpRequest authenticatedRequest = strippedRequest.mutate()
                             .headers(headers -> {
-                                headers.set(HEADER_PERSON_ID, String.valueOf(verify.personId()));
+                                headers.set(HEADER_LICHNOST_ID, String.valueOf(verify.lichnostId()));
                                 headers.set(HEADER_USER_ROLE, verify.role());
                                 if (verify.schoolId() != null) {
                                     headers.set(HEADER_SCHOOL_ID, String.valueOf(verify.schoolId()));
@@ -84,6 +84,6 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
         return -1;
     }
 
-    private record VerifyResponse(long personId, String role, Long schoolId, long expiresAtEpochSeconds) {
+    private record VerifyResponse(long lichnostId, String role, Long schoolId, long expiresAtEpochSeconds) {
     }
 }

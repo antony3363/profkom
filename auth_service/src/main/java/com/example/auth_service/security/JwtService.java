@@ -37,12 +37,12 @@ public class JwtService {
     @Value("${auth.jwt.access-token-ttl-minutes}")
     private long accessTokenTtlMinutes;
 
-    public String issueAccessToken(long personId, UserRole role, Long schoolId) {
+    public String issueAccessToken(long lichnostId, UserRole role, Long schoolId) {
         long now = Instant.now().getEpochSecond();
         long exp = now + accessTokenTtlMinutes * 60;
 
         Map<String, Object> payload = new LinkedHashMap<>();
-        payload.put("sub", String.valueOf(personId));
+        payload.put("sub", String.valueOf(lichnostId));
         payload.put("role", role.name());
         if (schoolId != null) {
             payload.put("schoolId", schoolId);
@@ -82,10 +82,10 @@ public class JwtService {
             throw new InvalidTokenException("Token expired");
         }
 
-        long personId = Long.parseLong((String) payload.get("sub"));
+        long lichnostId = Long.parseLong((String) payload.get("sub"));
         UserRole role = UserRole.valueOf((String) payload.get("role"));
         Long schoolId = payload.get("schoolId") != null ? ((Number) payload.get("schoolId")).longValue() : null;
-        return new AccessTokenClaims(personId, role, schoolId, exp);
+        return new AccessTokenClaims(lichnostId, role, schoolId, exp);
     }
 
     private String encode(Map<String, Object> payload) {

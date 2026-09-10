@@ -15,7 +15,7 @@ public class UserProfileCreateRequestDTO {
      * Приходит извне от Auth Service (пока — явно, до подключения Kafka).
      */
     @NotNull
-    private Long personId;
+    private Long lichnostId;
 
     private Long groupId;
 

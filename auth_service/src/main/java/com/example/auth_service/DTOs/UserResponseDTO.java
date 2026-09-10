@@ -4,15 +4,14 @@ import com.example.auth_service.enums.UserRole;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class UserResponseDTO {
-    private UUID userId;
-    private long personId;
+    private Long userId;
+    private long lichnostId;
     private UserRole role;
     private Long schoolId;
     private LocalDateTime createdAt;

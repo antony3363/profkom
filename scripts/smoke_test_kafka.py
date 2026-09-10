@@ -10,7 +10,7 @@ school-proforg-changed — см. scripts/... установку в памяти 
 auth_service (8081) + profile_service (8085).
 
 Сценарий:
-  1. UserRegistered: login с email/firstName/lastName (personId ещё не существовал)
+  1. UserRegistered: login с email/firstName/lastName (lichnostId ещё не существовал)
      -> auth_service публикует событие -> profile_service создаёт профиль автоматически.
   2. Обратная совместимость: login без email/имени -> профиль НЕ создаётся
      (старый ручной POST /profiles остаётся рабочим для этого случая).
@@ -18,7 +18,7 @@ auth_service (8081) + profile_service (8085).
      логинившийся) -> auth_service создаёт для него учётку с ролью PROFORG_SCHOOL.
   4. Профорга меняют на B -> A разжалован обратно в STUDENT, B получил роль.
 
-Используются случайные personId в диапазоне 900000-999999, чтобы скрипт можно
+Используются случайные lichnostId в диапазоне 900000-999999, чтобы скрипт можно
 было перезапускать без конфликтов с данными других smoke-тестов.
 """
 import json
@@ -72,8 +72,8 @@ def assert_eq(label, actual, expected):
         FAILURES.append(f"{label}: got {actual}, expected {expected}")
 
 
-def login(person_id, email=None, first_name=None, last_name=None):
-    body = {"personId": person_id}
+def login(lichnost_id, email=None, first_name=None, last_name=None):
+    body = {"lichnostId": lichnost_id}
     if email:
         body.update({"email": email, "firstName": first_name, "lastName": last_name})
     _, tokens = call("POST", f"{AUTH}/api/v1/auth/login", body, expect=200)
@@ -90,11 +90,12 @@ def main():
     new_student, no_email_student, proforg_a, proforg_b = base, base + 1, base + 2, base + 3
 
     print("== 1. UserRegistered: login с email -> авто-создание профиля ==")
-    login(new_student, "kafka.smoke@profkom.test", "Кафка", "Тестов")
+    email = f"kafka.smoke.{base}@profkom.test"
+    login(new_student, email, "Кафка", "Тестов")
     time.sleep(KAFKA_LAG_SECONDS)
     _, profile = call("GET", f"{PROFILE}/api/v1/profiles/{new_student}", expect=200)
     assert_eq("firstName авто-профиля", profile.get("firstName"), "Кафка")
-    assert_eq("email авто-профиля", profile.get("email"), "kafka.smoke@profkom.test")
+    assert_eq("email авто-профиля", profile.get("email"), email)
 
     print("\n== 2. Обратная совместимость: login без email -> профиль не создаётся ==")
     login(no_email_student)

@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "registrations", uniqueConstraints = @UniqueConstraint(columnNames = {"person_id", "event_id"}))
+@Table(name = "registrations", uniqueConstraints = @UniqueConstraint(columnNames = {"lichnost_id", "event_id"}))
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,8 +21,8 @@ public class Registration {
     @Column(name = "registration_id", nullable = false, updatable = false)
     private UUID registrationId;
 
-    @Column(name = "person_id", nullable = false, updatable = false)
-    private long personId;
+    @Column(name = "lichnost_id", nullable = false, updatable = false)
+    private long lichnostId;
 
     @Column(name = "event_id", nullable = false, updatable = false)
     private UUID eventId;

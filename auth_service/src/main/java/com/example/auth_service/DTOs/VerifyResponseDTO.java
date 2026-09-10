@@ -8,7 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class VerifyResponseDTO {
-    private long personId;
+    private long lichnostId;
     private UserRole role;
     private Long schoolId;
     private long expiresAtEpochSeconds;

@@ -49,17 +49,17 @@ public final class Person {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\014person.proto\022\017profkom.profile\"*\n\024Searc" +
-      "hPersonsRequest\022\022\n\nperson_ids\030\001 \003(\003\"_\n\rP" +
-      "ersonSummary\022\021\n\tperson_id\030\001 \001(\003\022\021\n\tfull_" +
-      "name\030\002 \001(\t\022\030\n\013group_title\030\003 \001(\tH\000\210\001\001B\016\n\014" +
-      "_group_title\"H\n\025SearchPersonsResponse\022/\n" +
-      "\007persons\030\001 \003(\0132\036.profkom.profile.PersonS" +
-      "ummary2s\n\021PersonGrpcService\022^\n\rSearchPer" +
-      "sons\022%.profkom.profile.SearchPersonsRequ" +
-      "est\032&.profkom.profile.SearchPersonsRespo" +
-      "nseB$\n com.example.profile_service.grpcP" +
-      "\001b\006proto3"
+      "\n\014person.proto\022\017profkom.profile\",\n\024Searc" +
+      "hPersonsRequest\022\024\n\014lichnost_ids\030\001 \003(\003\"a\n" +
+      "\rPersonSummary\022\023\n\013lichnost_id\030\001 \001(\003\022\021\n\tf" +
+      "ull_name\030\002 \001(\t\022\030\n\013group_title\030\003 \001(\tH\000\210\001\001" +
+      "B\016\n\014_group_title\"H\n\025SearchPersonsRespons" +
+      "e\022/\n\007persons\030\001 \003(\0132\036.profkom.profile.Per" +
+      "sonSummary2s\n\021PersonGrpcService\022^\n\rSearc" +
+      "hPersons\022%.profkom.profile.SearchPersons" +
+      "Request\032&.profkom.profile.SearchPersonsR" +
+      "esponseB$\n com.example.profile_service.g" +
+      "rpcP\001b\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -70,13 +70,13 @@ public final class Person {
     internal_static_profkom_profile_SearchPersonsRequest_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_profkom_profile_SearchPersonsRequest_descriptor,
-        new java.lang.String[] { "PersonIds", });
+        new java.lang.String[] { "LichnostIds", });
     internal_static_profkom_profile_PersonSummary_descriptor =
       getDescriptor().getMessageTypes().get(1);
     internal_static_profkom_profile_PersonSummary_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_profkom_profile_PersonSummary_descriptor,
-        new java.lang.String[] { "PersonId", "FullName", "GroupTitle", });
+        new java.lang.String[] { "LichnostId", "FullName", "GroupTitle", });
     internal_static_profkom_profile_SearchPersonsResponse_descriptor =
       getDescriptor().getMessageTypes().get(2);
     internal_static_profkom_profile_SearchPersonsResponse_fieldAccessorTable = new

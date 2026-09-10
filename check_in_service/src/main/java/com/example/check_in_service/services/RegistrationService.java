@@ -22,13 +22,13 @@ public class RegistrationService {
 
     @Transactional
     public RegistrationResponseDTO createRegistration(RegistrationCreateRequestDTO dto) {
-        if (registrationRepository.existsByPersonIdAndEventId(dto.getPersonId(), dto.getEventId())) {
+        if (registrationRepository.existsByLichnostIdAndEventId(dto.getLichnostId(), dto.getEventId())) {
             throw new DuplicateRecordException(
-                    "Person " + dto.getPersonId() + " is already registered for event " + dto.getEventId());
+                    "Person " + dto.getLichnostId() + " is already registered for event " + dto.getEventId());
         }
 
         Registration registration = Registration.builder()
-                .personId(dto.getPersonId())
+                .lichnostId(dto.getLichnostId())
                 .eventId(dto.getEventId())
                 .build();
 
@@ -58,8 +58,8 @@ public class RegistrationService {
     }
 
     @Transactional(readOnly = true)
-    public List<RegistrationResponseDTO> getRegistrationsByPersonId(long personId) {
-        return registrationRepository.findByPersonId(personId).stream()
+    public List<RegistrationResponseDTO> getRegistrationsByLichnostId(long lichnostId) {
+        return registrationRepository.findByLichnostId(lichnostId).stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -75,7 +75,7 @@ public class RegistrationService {
     private RegistrationResponseDTO mapToResponseDTO(Registration registration) {
         return RegistrationResponseDTO.builder()
                 .registrationId(registration.getRegistrationId())
-                .personId(registration.getPersonId())
+                .lichnostId(registration.getLichnostId())
                 .eventId(registration.getEventId())
                 .createdAt(registration.getCreatedAt())
                 .build();

@@ -15,11 +15,11 @@ META_ROW_GAP = 60
 # service: (fill, stroke, header_fill)
 SERVICES = [
     ("Auth Service", "#DCEAFB", "#5B84C4", "#5B84C4", {
-        "Users": ["PK user_id", "FK↗Profile person_id", "role", "created_at"],
+        "Users": ["PK user_id", "FK↗Profile lichnost_id", "role", "created_at"],
         "Tokens": ["PK token_id", "FK user_id", "refresh_token_hash", "expires_at", "created_at"],
     }),
     ("Profile Service (Personal)", "#EDE4F7", "#8B5FBF", "#8B5FBF", {
-        "User_profiles": ["PK person_id", "FK group_id", "first_name", "last_name", "second_name",
+        "User_profiles": ["PK lichnost_id", "FK group_id", "first_name", "last_name", "second_name",
                            "email", "card_number", "image", "membership_status"],
         "Groups": ["PK group_id", "title", "FK program_id", "FK proforg_id (почётно)"],
         "Programs": ["PK program_id", "title", "FK school_id", "FK proforg_id (почётно)"],
@@ -34,11 +34,11 @@ SERVICES = [
                   "requested_points_per_attendee", "points_per_attendee",
                   "FK↗Auth reviewed_by (nullable)", "reviewed_at",
                   "is_registration_required", "created_at", "updated_at"],
-        "VolunteerRecord": ["PK volunteer_record_id", "FK↗Profile lichnost_id (person_id)", "FK event_id"],
+        "VolunteerRecord": ["PK volunteer_record_id", "FK↗Profile lichnost_id", "FK event_id"],
     }),
     ("Mark Service (check_in_service)", "#DFF5F0", "#2FA98C", "#2FA98C", {
-        "Registration": ["PK registration_id", "FK↗Profile person_id", "FK↗Events event_id", "created_at"],
-        "CheckIn": ["PK check_in_id", "FK registration_id", "FK↗Profile person_id",
+        "Registration": ["PK registration_id", "FK↗Profile lichnost_id", "FK↗Events event_id", "created_at"],
+        "CheckIn": ["PK check_in_id", "FK registration_id", "FK↗Profile lichnost_id",
                     "type (SELF_SCAN/STAFF_SCAN)", "created_at"],
     }),
     ("Transactions Service", "#E4F5DE", "#4E9B3B", "#4E9B3B", {
@@ -68,7 +68,7 @@ SERVICES = [
         "StoredFile": ["PK file_id", "owner_service", "owner_id", "url", "content_type", "uploaded_at"],
     }),
     ("Notification Service", "#FEF6D8", "#C79A1E", "#C79A1E", {
-        "Notification": ["PK notification_id", "FK↗Profile person_id", "type",
+        "Notification": ["PK notification_id", "FK↗Profile lichnost_id", "type",
                           "channel (PUSH/EMAIL)", "status (PENDING/SENT/FAILED)", "created_at"],
     }),
 ]
@@ -76,7 +76,7 @@ SERVICES = [
 # (source_service, source_entity, target_service, target_entity, label, cross)
 RELATIONS = [
     ("Auth Service", "Tokens", "Auth Service", "Users", "user_id", False),
-    ("Auth Service", "Users", "Profile Service (Personal)", "User_profiles", "person_id", True),
+    ("Auth Service", "Users", "Profile Service (Personal)", "User_profiles", "lichnost_id", True),
     ("Profile Service (Personal)", "User_profiles", "Profile Service (Personal)", "Groups", "group_id", False),
     ("Profile Service (Personal)", "Groups", "Profile Service (Personal)", "Programs", "program_id", False),
     ("Profile Service (Personal)", "Programs", "Profile Service (Personal)", "Schools", "school_id", False),
@@ -88,7 +88,7 @@ RELATIONS = [
     ("Events Service", "Event", "Auth Service", "Users", "reviewed_by", True),
     ("Events Service", "VolunteerRecord", "Events Service", "Event", "event_id", False),
     ("Events Service", "VolunteerRecord", "Profile Service (Personal)", "User_profiles", "lichnost_id", True),
-    ("Mark Service (check_in_service)", "Registration", "Profile Service (Personal)", "User_profiles", "person_id", True),
+    ("Mark Service (check_in_service)", "Registration", "Profile Service (Personal)", "User_profiles", "lichnost_id", True),
     ("Mark Service (check_in_service)", "Registration", "Events Service", "Event", "event_id", True),
     ("Mark Service (check_in_service)", "CheckIn", "Mark Service (check_in_service)", "Registration", "registration_id", False),
     ("Transactions Service", "Transaction", "Transactions Service", "Wallet", "sender_wallet_id", False),
@@ -105,7 +105,7 @@ RELATIONS = [
     ("Shop Service", "Purchase", "Shop Service", "ProductVariant", "variant_id", False),
     ("Shop Service", "Purchase", "Profile Service (Personal)", "User_profiles", "buyer_id", True),
     ("Shop Service", "Purchase", "Transactions Service", "Transaction", "transaction_id", True),
-    ("Notification Service", "Notification", "Profile Service (Personal)", "User_profiles", "person_id", True),
+    ("Notification Service", "Notification", "Profile Service (Personal)", "User_profiles", "lichnost_id", True),
 ]
 
 

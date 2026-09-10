@@ -34,12 +34,12 @@ public class RegistrationController {
     @GetMapping
     public ResponseEntity<List<RegistrationResponseDTO>> getRegistrations(
             @RequestParam(required = false) UUID eventId,
-            @RequestParam(required = false) Long personId) {
+            @RequestParam(required = false) Long lichnostId) {
         List<RegistrationResponseDTO> registrations;
         if (eventId != null) {
             registrations = registrationService.getRegistrationsByEventId(eventId);
-        } else if (personId != null) {
-            registrations = registrationService.getRegistrationsByPersonId(personId);
+        } else if (lichnostId != null) {
+            registrations = registrationService.getRegistrationsByLichnostId(lichnostId);
         } else {
             registrations = registrationService.getAllRegistrations();
         }

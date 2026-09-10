@@ -4,7 +4,7 @@ import static io.grpc.MethodDescriptor.generateFullMethodName;
 
 /**
  * <pre>
- * Вызывается events_service (VolunteerService — резолвит имена волонтёров по personId).
+ * Вызывается events_service (VolunteerService — резолвит имена волонтёров по lichnostId).
  * </pre>
  */
 @javax.annotation.Generated(
@@ -95,7 +95,7 @@ public final class PersonGrpcServiceGrpc {
 
   /**
    * <pre>
-   * Вызывается events_service (VolunteerService — резолвит имена волонтёров по personId).
+   * Вызывается events_service (VolunteerService — резолвит имена волонтёров по lichnostId).
    * </pre>
    */
   public interface AsyncService {
@@ -111,7 +111,7 @@ public final class PersonGrpcServiceGrpc {
   /**
    * Base class for the server implementation of the service PersonGrpcService.
    * <pre>
-   * Вызывается events_service (VolunteerService — резолвит имена волонтёров по personId).
+   * Вызывается events_service (VolunteerService — резолвит имена волонтёров по lichnostId).
    * </pre>
    */
   public static abstract class PersonGrpcServiceImplBase
@@ -125,7 +125,7 @@ public final class PersonGrpcServiceGrpc {
   /**
    * A stub to allow clients to do asynchronous rpc calls to service PersonGrpcService.
    * <pre>
-   * Вызывается events_service (VolunteerService — резолвит имена волонтёров по personId).
+   * Вызывается events_service (VolunteerService — резолвит имена волонтёров по lichnostId).
    * </pre>
    */
   public static final class PersonGrpcServiceStub
@@ -153,7 +153,7 @@ public final class PersonGrpcServiceGrpc {
   /**
    * A stub to allow clients to do synchronous rpc calls to service PersonGrpcService.
    * <pre>
-   * Вызывается events_service (VolunteerService — резолвит имена волонтёров по personId).
+   * Вызывается events_service (VolunteerService — резолвит имена волонтёров по lichnostId).
    * </pre>
    */
   public static final class PersonGrpcServiceBlockingStub
@@ -180,7 +180,7 @@ public final class PersonGrpcServiceGrpc {
   /**
    * A stub to allow clients to do ListenableFuture-style rpc calls to service PersonGrpcService.
    * <pre>
-   * Вызывается events_service (VolunteerService — резолвит имена волонтёров по personId).
+   * Вызывается events_service (VolunteerService — резолвит имена волонтёров по lichnostId).
    * </pre>
    */
   public static final class PersonGrpcServiceFutureStub

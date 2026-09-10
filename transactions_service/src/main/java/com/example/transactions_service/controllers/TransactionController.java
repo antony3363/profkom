@@ -29,7 +29,7 @@ public class TransactionController {
     @PostMapping("/event-reward")
     public ResponseEntity<TransactionResponseDTO> eventReward(
             @RequestHeader(value = "X-User-Role", required = false) String role,
-            @RequestHeader(value = "X-Person-Id", required = false) Long reviewerId,
+            @RequestHeader(value = "X-Lichnost-Id", required = false) Long reviewerId,
             @Valid @RequestBody EventRewardRequestDTO dto) {
         requireAdmin(role, reviewerId);
         TransactionResponseDTO response = transactionService.eventReward(reviewerId, dto);
@@ -42,7 +42,7 @@ public class TransactionController {
     @PostMapping("/transfer")
     public ResponseEntity<TransactionResponseDTO> transfer(
             @RequestHeader(value = "X-User-Role", required = false) String role,
-            @RequestHeader(value = "X-Person-Id", required = false) Long callerId,
+            @RequestHeader(value = "X-Lichnost-Id", required = false) Long callerId,
             @Valid @RequestBody TransferRequestDTO dto) {
         requireAdmin(role, callerId);
         TransactionResponseDTO response = transactionService.transferFromAdmin(callerId, dto);

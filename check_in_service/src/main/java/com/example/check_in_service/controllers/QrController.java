@@ -22,11 +22,11 @@ public class QrController {
 
     @GetMapping("/me")
     public ResponseEntity<Map<String, String>> getMyQr(
-            @RequestHeader(value = "X-Person-Id", required = false) Long personId) {
-        if (personId == null) {
-            throw new UnauthorizedException("Missing X-Person-Id header");
+            @RequestHeader(value = "X-Lichnost-Id", required = false) Long lichnostId) {
+        if (lichnostId == null) {
+            throw new UnauthorizedException("Missing X-Lichnost-Id header");
         }
-        return ResponseEntity.ok(Map.of("payload", qrTokenService.generatePersonPayload(personId)));
+        return ResponseEntity.ok(Map.of("payload", qrTokenService.generatePersonPayload(lichnostId)));
     }
 
     @GetMapping("/events/{eventId}")

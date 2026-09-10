@@ -10,19 +10,19 @@ public interface SearchPersonsRequestOrBuilder extends
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   * <code>repeated int64 person_ids = 1;</code>
-   * @return A list containing the personIds.
+   * <code>repeated int64 lichnost_ids = 1;</code>
+   * @return A list containing the lichnostIds.
    */
-  java.util.List<java.lang.Long> getPersonIdsList();
+  java.util.List<java.lang.Long> getLichnostIdsList();
   /**
-   * <code>repeated int64 person_ids = 1;</code>
-   * @return The count of personIds.
+   * <code>repeated int64 lichnost_ids = 1;</code>
+   * @return The count of lichnostIds.
    */
-  int getPersonIdsCount();
+  int getLichnostIdsCount();
   /**
-   * <code>repeated int64 person_ids = 1;</code>
+   * <code>repeated int64 lichnost_ids = 1;</code>
    * @param index The index of the element to return.
-   * @return The personIds at the given index.
+   * @return The lichnostIds at the given index.
    */
-  long getPersonIds(int index);
+  long getLichnostIds(int index);
 }

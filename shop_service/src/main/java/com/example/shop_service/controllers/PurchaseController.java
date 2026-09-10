@@ -22,10 +22,10 @@ public class PurchaseController {
 
     @PostMapping
     public ResponseEntity<PurchaseResponseDTO> createPurchase(
-            @RequestHeader(value = "X-Person-Id", required = false) Long buyerId,
+            @RequestHeader(value = "X-Lichnost-Id", required = false) Long buyerId,
             @Valid @RequestBody PurchaseCreateRequestDTO dto) {
         if (buyerId == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing X-Person-Id header");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing X-Lichnost-Id header");
         }
         PurchaseResponseDTO response = purchaseService.createPurchase(buyerId, dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -38,9 +38,9 @@ public class PurchaseController {
 
     @GetMapping
     public ResponseEntity<List<PurchaseResponseDTO>> getMyPurchases(
-            @RequestHeader(value = "X-Person-Id", required = false) Long buyerId) {
+            @RequestHeader(value = "X-Lichnost-Id", required = false) Long buyerId) {
         if (buyerId == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing X-Person-Id header");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing X-Lichnost-Id header");
         }
         return ResponseEntity.ok(purchaseService.getPurchasesByBuyerId(buyerId));
     }

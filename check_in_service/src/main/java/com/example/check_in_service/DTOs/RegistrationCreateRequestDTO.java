@@ -12,7 +12,7 @@ import java.util.UUID;
 public class RegistrationCreateRequestDTO {
 
     @NotNull
-    private Long personId;
+    private Long lichnostId;
 
     @NotNull
     private UUID eventId;

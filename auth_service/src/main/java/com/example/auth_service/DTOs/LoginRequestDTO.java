@@ -5,7 +5,7 @@ import lombok.*;
 
 /**
  * ЗАГЛУШКА обмена с SSO ТПУ: в целевой архитектуре сюда приходит authorization code
- * от ТПУ (OAuth2/OIDC, Authorization Code + PKCE), а personId/email/firstName/
+ * от ТПУ (OAuth2/OIDC, Authorization Code + PKCE), а lichnostId/email/firstName/
  * lastName извлекаются из id-токена. Реального доступа к OIDC-эндпоинту ТПУ нет,
  * поэтому они передаются напрямую — заменить на реальный обмен кода при подключении.
  * email/firstName/lastName нужны только при первом входе (публикуются в
@@ -19,7 +19,7 @@ import lombok.*;
 public class LoginRequestDTO {
 
     @NotNull
-    private Long personId;
+    private Long lichnostId;
 
     private String email;
     private String firstName;

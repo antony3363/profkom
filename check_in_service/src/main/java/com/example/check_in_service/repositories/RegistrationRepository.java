@@ -11,7 +11,7 @@ import java.util.UUID;
 @Repository
 public interface RegistrationRepository extends JpaRepository<Registration, UUID> {
     List<Registration> findByEventId(UUID eventId);
-    List<Registration> findByPersonId(long personId);
-    boolean existsByPersonIdAndEventId(long personId, UUID eventId);
-    Optional<Registration> findByPersonIdAndEventId(long personId, UUID eventId);
+    List<Registration> findByLichnostId(long lichnostId);
+    boolean existsByLichnostIdAndEventId(long lichnostId, UUID eventId);
+    Optional<Registration> findByLichnostIdAndEventId(long lichnostId, UUID eventId);
 }

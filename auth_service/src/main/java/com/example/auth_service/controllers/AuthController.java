@@ -21,7 +21,7 @@ public class AuthController {
      */
     @PostMapping("/login")
     public ResponseEntity<TokenPairResponseDTO> login(@Valid @RequestBody LoginRequestDTO dto) {
-        return ResponseEntity.ok(authService.login(dto.getPersonId(), dto.getEmail(), dto.getFirstName(), dto.getLastName()));
+        return ResponseEntity.ok(authService.login(dto.getLichnostId(), dto.getEmail(), dto.getFirstName(), dto.getLastName()));
     }
 
     @PostMapping("/refresh")

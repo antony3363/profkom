@@ -9,8 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
@@ -21,7 +19,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/{userId}")
-    public ResponseEntity<UserResponseDTO> getUser(@PathVariable UUID userId) {
+    public ResponseEntity<UserResponseDTO> getUser(@PathVariable Long userId) {
         return ResponseEntity.ok(userService.getUserById(userId));
     }
 
@@ -32,7 +30,7 @@ public class UserController {
     @PutMapping("/{userId}/role")
     public ResponseEntity<UserResponseDTO> updateRole(
             @RequestHeader(value = "X-User-Role", required = false) String callerRole,
-            @PathVariable UUID userId,
+            @PathVariable Long userId,
             @Valid @RequestBody RoleUpdateRequestDTO dto) {
         if (!ROLE_ADMIN.equals(callerRole)) {
             throw new UnauthorizedException("Только администратор может менять роли");

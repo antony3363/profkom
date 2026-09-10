@@ -30,8 +30,8 @@ public class AuthService {
     private long refreshTokenTtlDays;
 
     @Transactional
-    public TokenPairResponseDTO login(long personId, String email, String firstName, String lastName) {
-        AppUser user = userService.getOrCreateUser(personId, email, firstName, lastName);
+    public TokenPairResponseDTO login(long lichnostId, String email, String firstName, String lastName) {
+        AppUser user = userService.getOrCreateUser(lichnostId, email, firstName, lastName);
         return issueTokenPair(user);
     }
 
@@ -65,7 +65,7 @@ public class AuthService {
     }
 
     private TokenPairResponseDTO issueTokenPair(AppUser user) {
-        String accessToken = jwtService.issueAccessToken(user.getPersonId(), user.getRole(), user.getSchoolId());
+        String accessToken = jwtService.issueAccessToken(user.getLichnostId(), user.getRole(), user.getSchoolId());
 
         String rawRefreshToken = refreshTokenGenerator.generateRawToken();
         RefreshToken refreshToken = RefreshToken.builder()

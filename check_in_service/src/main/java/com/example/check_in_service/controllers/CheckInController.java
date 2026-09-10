@@ -21,9 +21,9 @@ public class CheckInController {
 
     @PostMapping
     public ResponseEntity<CheckInResponseDTO> createCheckIn(
-            @RequestHeader(value = "X-Person-Id", required = false) Long callerPersonId,
+            @RequestHeader(value = "X-Lichnost-Id", required = false) Long callerLichnostId,
             @Valid @RequestBody CheckInCreateRequestDTO dto) {
-        CheckInResponseDTO response = checkInService.createCheckIn(dto, callerPersonId);
+        CheckInResponseDTO response = checkInService.createCheckIn(dto, callerLichnostId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

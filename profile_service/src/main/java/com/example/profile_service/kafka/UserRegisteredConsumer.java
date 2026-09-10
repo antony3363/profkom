@@ -16,6 +16,6 @@ public class UserRegisteredConsumer {
         if (event.email() == null || event.firstName() == null || event.lastName() == null) {
             return; // заглушка SSO не прислала данные — профиль создадут вручную позже (POST /profiles)
         }
-        userProfileService.createFromRegistration(event.personId(), event.email(), event.firstName(), event.lastName());
+        userProfileService.createFromRegistration(event.lichnostId(), event.email(), event.firstName(), event.lastName());
     }
 }

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Сквозной прогон всей системы через реальные HTTP-вызовы (без Gateway — заголовки
-X-Person-Id/X-User-Role/X-School-Id выставляются здесь вручную, как это в проде
+X-Lichnost-Id/X-User-Role/X-School-Id выставляются здесь вручную, как это в проде
 делал бы Gateway после проверки JWT).
 
 См. также smoke_test_gateway.py — тот же сценарий, но через реальный Gateway
@@ -75,7 +75,7 @@ def now_plus(hours):
 
 def main():
     print("== Auth: login/verify/refresh/logout ==")
-    _, tokens = call("POST", f"{AUTH}/api/v1/auth/login", {"personId": 1}, expect=200)
+    _, tokens = call("POST", f"{AUTH}/api/v1/auth/login", {"lichnostId": 1}, expect=200)
     access = tokens["accessToken"]
     refresh = tokens["refreshToken"]
     call("GET", f"{AUTH}/api/v1/auth/verify", headers={"Authorization": f"Bearer {access}"}, expect=200)
@@ -98,13 +98,13 @@ def main():
 
     print("\n== Profile: профили (1=admin/Литвинов, 2=профорг школы, 3=студент) ==")
     call("POST", f"{PROFILE}/api/v1/profiles",
-         {"personId": 1, "groupId": group_id, "firstName": "Александр", "lastName": "Литвинов",
+         {"lichnostId": 1, "groupId": group_id, "firstName": "Александр", "lastName": "Литвинов",
           "email": "litvinov@profkom.test"}, expect=201)
     call("POST", f"{PROFILE}/api/v1/profiles",
-         {"personId": 2, "groupId": group_id, "firstName": "Профорг", "lastName": "Школьный",
+         {"lichnostId": 2, "groupId": group_id, "firstName": "Профорг", "lastName": "Школьный",
           "email": "proforg@profkom.test"}, expect=201)
     call("POST", f"{PROFILE}/api/v1/profiles",
-         {"personId": 3, "groupId": group_id, "firstName": "Студент", "lastName": "Тестовый",
+         {"lichnostId": 3, "groupId": group_id, "firstName": "Студент", "lastName": "Тестовый",
           "email": "student@profkom.test"}, expect=201)
 
     call("PUT", f"{PROFILE}/api/v1/schools/{school_id}/proforg", {"proforgId": 2}, admin_hdr, expect=200)
@@ -127,9 +127,9 @@ def main():
     _, event = call("POST", f"{EVENTS}/api/v1/events", event_body, proforg_hdr, expect=201)
     event_id = event["eventId"]
 
-    admin_person_hdr = {"X-User-Role": "ADMIN", "X-Person-Id": 1}
+    admin_lichnost_hdr = {"X-User-Role": "ADMIN", "X-Lichnost-Id": 1}
     _, approved = call("POST", f"{EVENTS}/api/v1/events/{event_id}/accept",
-                        {"pointsPerAttendee": 50}, admin_person_hdr, expect=200)
+                        {"pointsPerAttendee": 50}, admin_lichnost_hdr, expect=200)
     assert_eq("moderationStatus после accept", approved.get("moderationStatus"), "APPROVED")
     assert_eq("status после accept", approved.get("status"), "PUBLISHED")
 
@@ -137,11 +137,11 @@ def main():
     _, qr = call("GET", f"{CHECKIN}/api/v1/qr/events/{event_id}", expect=200)
     _, checkin = call("POST", f"{CHECKIN}/api/v1/check-ins",
                        {"type": "SELF_SCAN", "qrPayload": qr["payload"]},
-                       {"X-Person-Id": 3}, expect=201)
+                       {"X-Lichnost-Id": 3}, expect=201)
 
     print("\n== Transactions: баланс студента после чек-ина (ждём начисления через gRPC) ==")
     _, wallet = call("GET", f"{TRANSACTIONS}/api/v1/wallets/me",
-                      headers={"X-Person-Id": 3, "X-User-Role": "STUDENT"}, expect=200)
+                      headers={"X-Lichnost-Id": 3, "X-User-Role": "STUDENT"}, expect=200)
     assert_eq("баланс студента после чек-ина", wallet.get("balance"), 50)
 
     print("\n== Shop: товар за 30 баллов -> покупка студентом ==")
@@ -156,12 +156,12 @@ def main():
     variant_id = product["variants"][0]["variantId"]
 
     _, purchase = call("POST", f"{SHOP}/api/v1/purchases",
-                        {"variantId": variant_id, "count": 1}, {"X-Person-Id": 3}, expect=201)
+                        {"variantId": variant_id, "count": 1}, {"X-Lichnost-Id": 3}, expect=201)
     assert_eq("статус покупки", purchase.get("status"), "CONFIRMED")
 
     print("\n== Transactions: баланс студента после покупки ==")
     _, wallet2 = call("GET", f"{TRANSACTIONS}/api/v1/wallets/me",
-                       headers={"X-Person-Id": 3, "X-User-Role": "STUDENT"}, expect=200)
+                       headers={"X-Lichnost-Id": 3, "X-User-Role": "STUDENT"}, expect=200)
     assert_eq("баланс студента после покупки", wallet2.get("balance"), 20)
 
     print("\n" + "=" * 60)

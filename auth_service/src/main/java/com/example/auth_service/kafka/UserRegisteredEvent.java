@@ -7,5 +7,5 @@ package com.example.auth_service.kafka;
  * это будут claims из id-токена. Profile Service создаёт профиль по этому
  * событию, только если все три поля присутствуют.
  */
-public record UserRegisteredEvent(long personId, String email, String firstName, String lastName) {
+public record UserRegisteredEvent(long lichnostId, String email, String firstName, String lastName) {
 }

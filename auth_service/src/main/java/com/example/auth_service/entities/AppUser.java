@@ -6,11 +6,10 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 /**
  * Назван AppUser, а не User — "user" зарезервированное слово в PostgreSQL.
- * personId — тот же идентификатор, что использует Profile Service для UserProfile
+ * lichnostId — тот же идентификатор, что использует Profile Service для UserProfile
  * (общий ключ между Auth и Profile, см. profkom-architecture).
  */
 @Entity
@@ -23,12 +22,12 @@ import java.util.UUID;
 public class AppUser {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", nullable = false, updatable = false)
-    private UUID userId;
+    private Long userId;
 
-    @Column(name = "person_id", nullable = false, unique = true, updatable = false)
-    private long personId;
+    @Column(name = "lichnost_id", nullable = false, unique = true, updatable = false)
+    private long lichnostId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)

@@ -20,12 +20,12 @@ public class WalletController {
 
     @GetMapping("/me")
     public ResponseEntity<WalletResponseDTO> getMyWallet(
-            @RequestHeader(value = "X-Person-Id", required = false) Long personId,
+            @RequestHeader(value = "X-Lichnost-Id", required = false) Long lichnostId,
             @RequestHeader(value = "X-User-Role", required = false) String role) {
-        if (personId == null) {
-            throw new UnauthorizedException("Missing X-Person-Id header");
+        if (lichnostId == null) {
+            throw new UnauthorizedException("Missing X-Lichnost-Id header");
         }
-        return ResponseEntity.ok(walletService.getMyPersonalWallet(personId, ROLE_ADMIN.equals(role)));
+        return ResponseEntity.ok(walletService.getMyPersonalWallet(lichnostId, ROLE_ADMIN.equals(role)));
     }
 
     @GetMapping("/{walletId}")

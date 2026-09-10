@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 """
 Сквозной прогон всей системы ЧЕРЕЗ API Gateway (порт 8090), с реальными JWT
-вместо ручной подстановки X-Person-Id/X-User-Role/X-School-Id — так, как это
+вместо ручной подстановки X-Lichnost-Id/X-User-Role/X-School-Id — так, как это
 происходит в реальности: Gateway сам вызывает /api/v1/auth/verify и подставляет
 заголовки, downstream-сервисы просто доверяют тому, что пришло от Gateway.
 
 Единственное место, где мы обходим API — самый первый бутстрап administratora
-(personId=301): в системе ещё нет ни одного ADMIN, а без ADMIN некому выдать роль
+(lichnostId=301): в системе ещё нет ни одного ADMIN, а без ADMIN некому выдать роль
 через PUT /api/v1/users/{userId}/role. Поэтому первую роль ADMIN проставляем
 напрямую в БД (psql) — это ровно то, что в проде сделал бы оператор при первом
 разворачивании системы (seed/миграция), а не дыра в авторизации.
@@ -34,9 +34,9 @@ GATEWAY = "http://localhost:8090"
 PSQL = r"C:\Program Files\PostgreSQL\17\bin\psql.exe"
 PG_ENV = {"PGPASSWORD": "123"}
 
-ADMIN_PERSON_ID = 301
-PROFORG_PERSON_ID = 302
-STUDENT_PERSON_ID = 303
+ADMIN_LICHNOST_ID = 301
+PROFORG_LICHNOST_ID = 302
+STUDENT_LICHNOST_ID = 303
 
 FAILURES = []
 
@@ -95,16 +95,16 @@ def psql(sql):
     return result.stdout.strip()
 
 
-def login(person_id):
-    _, tokens = call("POST", f"{GATEWAY}/api/v1/auth/login", {"personId": person_id}, expect=200)
+def login(lichnost_id):
+    _, tokens = call("POST", f"{GATEWAY}/api/v1/auth/login", {"lichnostId": lichnost_id}, expect=200)
     return tokens["accessToken"]
 
 
 def main():
     print("== Auth: bootstrap первого ADMIN (person=301) напрямую через БД ==")
-    login(ADMIN_PERSON_ID)  # создаёт строку app_users со стандартной ролью STUDENT
-    psql(f"UPDATE app_users SET role='ADMIN' WHERE person_id={ADMIN_PERSON_ID};")
-    admin_token = login(ADMIN_PERSON_ID)  # перелогин — новый JWT уже с ролью ADMIN
+    login(ADMIN_LICHNOST_ID)  # создаёт строку app_users со стандартной ролью STUDENT
+    psql(f"UPDATE app_users SET role='ADMIN' WHERE lichnost_id={ADMIN_LICHNOST_ID};")
+    admin_token = login(ADMIN_LICHNOST_ID)  # перелогин — новый JWT уже с ролью ADMIN
     _, verified = call("GET", f"{GATEWAY}/api/v1/auth/verify", headers=bearer(admin_token), expect=200)
     assert_eq("роль администратора после бутстрапа", verified.get("role"), "ADMIN")
 
@@ -123,29 +123,29 @@ def main():
 
     print("\n== Profile: профили (301=Литвинов, 302=профорг школы, 303=студент) ==")
     call("POST", f"{GATEWAY}/api/v1/profiles",
-         {"personId": ADMIN_PERSON_ID, "groupId": group_id, "firstName": "Александр", "lastName": "Литвинов",
+         {"lichnostId": ADMIN_LICHNOST_ID, "groupId": group_id, "firstName": "Александр", "lastName": "Литвинов",
           "email": "litvinov.gw@profkom.test"}, expect=201)
     call("POST", f"{GATEWAY}/api/v1/profiles",
-         {"personId": PROFORG_PERSON_ID, "groupId": group_id, "firstName": "Профорг", "lastName": "Школьный",
+         {"lichnostId": PROFORG_LICHNOST_ID, "groupId": group_id, "firstName": "Профорг", "lastName": "Школьный",
           "email": "proforg.gw@profkom.test"}, expect=201)
     call("POST", f"{GATEWAY}/api/v1/profiles",
-         {"personId": STUDENT_PERSON_ID, "groupId": group_id, "firstName": "Студент", "lastName": "Тестовый",
+         {"lichnostId": STUDENT_LICHNOST_ID, "groupId": group_id, "firstName": "Студент", "lastName": "Тестовый",
           "email": "student.gw@profkom.test"}, expect=201)
 
     call("PUT", f"{GATEWAY}/api/v1/schools/{school_id}/proforg",
-         {"proforgId": PROFORG_PERSON_ID}, bearer(admin_token), expect=200)
+         {"proforgId": PROFORG_LICHNOST_ID}, bearer(admin_token), expect=200)
 
     print("\n== Auth: назначение роли PROFORG_SCHOOL person=302 (через Gateway, Bearer admin) ==")
-    login(PROFORG_PERSON_ID)  # создаёт строку app_users со стандартной ролью STUDENT
-    proforg_user_id = psql(f"SELECT user_id FROM app_users WHERE person_id={PROFORG_PERSON_ID};")
+    login(PROFORG_LICHNOST_ID)  # создаёт строку app_users со стандартной ролью STUDENT
+    proforg_user_id = psql(f"SELECT user_id FROM app_users WHERE lichnost_id={PROFORG_LICHNOST_ID};")
     call("PUT", f"{GATEWAY}/api/v1/users/{proforg_user_id}/role",
          {"role": "PROFORG_SCHOOL", "schoolId": school_id}, bearer(admin_token), expect=200)
-    proforg_token = login(PROFORG_PERSON_ID)  # перелогин — JWT уже с ролью PROFORG_SCHOOL и schoolId
+    proforg_token = login(PROFORG_LICHNOST_ID)  # перелогин — JWT уже с ролью PROFORG_SCHOOL и schoolId
     _, verified_proforg = call("GET", f"{GATEWAY}/api/v1/auth/verify", headers=bearer(proforg_token), expect=200)
     assert_eq("роль профорга школы", verified_proforg.get("role"), "PROFORG_SCHOOL")
     assert_eq("schoolId профорга в токене", verified_proforg.get("schoolId"), school_id)
 
-    student_token = login(STUDENT_PERSON_ID)
+    student_token = login(STUDENT_LICHNOST_ID)
 
     print("\n== Events: заявка профорга (Bearer proforg) -> одобрение Литвиновым (Bearer admin) ==")
     event_body = {
@@ -156,7 +156,7 @@ def main():
         "registrationEndAt": now_plus(1),
         "startAt": now_plus(2),
         "endAt": now_plus(4),
-        "ownerId": PROFORG_PERSON_ID,
+        "ownerId": PROFORG_LICHNOST_ID,
         "schoolId": school_id,
         "requestedPointsPerAttendee": 50,
         "registrationRequired": False,

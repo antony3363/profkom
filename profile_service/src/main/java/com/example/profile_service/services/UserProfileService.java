@@ -25,13 +25,13 @@ public class UserProfileService {
 
     /**
      * В целевой архитектуре создаётся Profile Service автоматически по событию
-     * UserRegistered из Auth Service — пока Kafka не подключена, personId и остальные
+     * UserRegistered из Auth Service — пока Kafka не подключена, lichnostId и остальные
      * поля передаются явно (например, из атрибутов SSO ТПУ на момент первого входа).
      */
     @Transactional
     public UserProfileResponseDTO createProfile(UserProfileCreateRequestDTO dto) {
-        if (userProfileRepository.existsById(dto.getPersonId())) {
-            throw new DuplicateRecordException("Profile already exists for person: " + dto.getPersonId());
+        if (userProfileRepository.existsById(dto.getLichnostId())) {
+            throw new DuplicateRecordException("Profile already exists for person: " + dto.getLichnostId());
         }
         if (userProfileRepository.existsByEmail(dto.getEmail())) {
             throw new DuplicateRecordException("Profile with email " + dto.getEmail() + " already exists");
@@ -43,7 +43,7 @@ public class UserProfileService {
         Group group = resolveGroup(dto.getGroupId());
 
         UserProfile profile = UserProfile.builder()
-                .personId(dto.getPersonId())
+                .lichnostId(dto.getLichnostId())
                 .group(group)
                 .firstName(dto.getFirstName())
                 .lastName(dto.getLastName())
@@ -64,12 +64,12 @@ public class UserProfileService {
      * ошибки, так как здесь нет вызывающей стороны, которой можно вернуть 409.
      */
     @Transactional
-    public void createFromRegistration(long personId, String email, String firstName, String lastName) {
-        if (userProfileRepository.existsById(personId) || userProfileRepository.existsByEmail(email)) {
+    public void createFromRegistration(long lichnostId, String email, String firstName, String lastName) {
+        if (userProfileRepository.existsById(lichnostId) || userProfileRepository.existsByEmail(email)) {
             return;
         }
         UserProfile profile = UserProfile.builder()
-                .personId(personId)
+                .lichnostId(lichnostId)
                 .firstName(firstName)
                 .lastName(lastName)
                 .email(email)
@@ -78,8 +78,8 @@ public class UserProfileService {
     }
 
     @Transactional(readOnly = true)
-    public UserProfileResponseDTO getProfileById(Long personId) {
-        return mapToResponseDTO(findProfile(personId));
+    public UserProfileResponseDTO getProfileById(Long lichnostId) {
+        return mapToResponseDTO(findProfile(lichnostId));
     }
 
     @Transactional(readOnly = true)
@@ -90,8 +90,8 @@ public class UserProfileService {
     }
 
     @Transactional
-    public UserProfileResponseDTO updateProfile(Long personId, UserProfileUpdateRequestDTO dto) {
-        UserProfile profile = findProfile(personId);
+    public UserProfileResponseDTO updateProfile(Long lichnostId, UserProfileUpdateRequestDTO dto) {
+        UserProfile profile = findProfile(lichnostId);
 
         if (dto.getFirstName() != null) profile.setFirstName(dto.getFirstName());
         if (dto.getLastName() != null) profile.setLastName(dto.getLastName());
@@ -129,14 +129,14 @@ public class UserProfileService {
                 .orElseThrow(() -> new EntityNotFoundException("Group not found with id: " + groupId));
     }
 
-    private UserProfile findProfile(Long personId) {
-        return userProfileRepository.findById(personId)
-                .orElseThrow(() -> new EntityNotFoundException("Profile not found for person: " + personId));
+    private UserProfile findProfile(Long lichnostId) {
+        return userProfileRepository.findById(lichnostId)
+                .orElseThrow(() -> new EntityNotFoundException("Profile not found for person: " + lichnostId));
     }
 
     private UserProfileResponseDTO mapToResponseDTO(UserProfile profile) {
         return UserProfileResponseDTO.builder()
-                .personId(profile.getPersonId())
+                .lichnostId(profile.getLichnostId())
                 .groupId(profile.getGroup() != null ? profile.getGroup().getGroupId() : null)
                 .firstName(profile.getFirstName())
                 .lastName(profile.getLastName())

@@ -32,16 +32,16 @@ public class UserProfileController {
 
     @GetMapping("/me")
     public ResponseEntity<UserProfileResponseDTO> getMyProfile(
-            @RequestHeader(value = "X-Person-Id", required = false) Long personId) {
-        if (personId == null) {
-            throw new UnauthorizedException("Missing X-Person-Id header");
+            @RequestHeader(value = "X-Lichnost-Id", required = false) Long lichnostId) {
+        if (lichnostId == null) {
+            throw new UnauthorizedException("Missing X-Lichnost-Id header");
         }
-        return ResponseEntity.ok(userProfileService.getProfileById(personId));
+        return ResponseEntity.ok(userProfileService.getProfileById(lichnostId));
     }
 
-    @GetMapping("/{personId}")
-    public ResponseEntity<UserProfileResponseDTO> getProfile(@PathVariable Long personId) {
-        return ResponseEntity.ok(userProfileService.getProfileById(personId));
+    @GetMapping("/{lichnostId}")
+    public ResponseEntity<UserProfileResponseDTO> getProfile(@PathVariable Long lichnostId) {
+        return ResponseEntity.ok(userProfileService.getProfileById(lichnostId));
     }
 
     @GetMapping
@@ -51,24 +51,24 @@ public class UserProfileController {
 
     @PutMapping("/me")
     public ResponseEntity<UserProfileResponseDTO> updateMyProfile(
-            @RequestHeader(value = "X-Person-Id", required = false) Long personId,
+            @RequestHeader(value = "X-Lichnost-Id", required = false) Long lichnostId,
             @Valid @RequestBody UserProfileUpdateRequestDTO dto) {
-        if (personId == null) {
-            throw new UnauthorizedException("Missing X-Person-Id header");
+        if (lichnostId == null) {
+            throw new UnauthorizedException("Missing X-Lichnost-Id header");
         }
         // студент не может сам сменить себе membershipStatus — это право администратора
         dto.setMembershipStatus(null);
-        return ResponseEntity.ok(userProfileService.updateProfile(personId, dto));
+        return ResponseEntity.ok(userProfileService.updateProfile(lichnostId, dto));
     }
 
-    @PutMapping("/{personId}")
+    @PutMapping("/{lichnostId}")
     public ResponseEntity<UserProfileResponseDTO> updateProfile(
             @RequestHeader(value = "X-User-Role", required = false) String role,
-            @PathVariable Long personId,
+            @PathVariable Long lichnostId,
             @Valid @RequestBody UserProfileUpdateRequestDTO dto) {
         if (!"ADMIN".equals(role)) {
             throw new UnauthorizedException("Изменение статуса членства доступно только администратору");
         }
-        return ResponseEntity.ok(userProfileService.updateProfile(personId, dto));
+        return ResponseEntity.ok(userProfileService.updateProfile(lichnostId, dto));
     }
 }

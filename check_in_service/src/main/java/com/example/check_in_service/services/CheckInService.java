@@ -39,22 +39,22 @@ public class CheckInService {
     private final TransactionGrpcClient transactionGrpcClient;
 
     @Transactional
-    public CheckInResponseDTO createCheckIn(CheckInCreateRequestDTO dto, Long callerPersonId) {
-        long personId;
+    public CheckInResponseDTO createCheckIn(CheckInCreateRequestDTO dto, Long callerLichnostId) {
+        long lichnostId;
         UUID eventId;
 
         if (dto.getType() == CheckInType.SELF_SCAN) {
-            if (callerPersonId == null) {
+            if (callerLichnostId == null) {
                 throw new UnauthorizedException("Missing caller identity for self check-in");
             }
-            personId = callerPersonId;
+            lichnostId = callerLichnostId;
             EventQrPayload parsed = eventQrService.parseEventPayload(dto.getQrPayload());
             eventId = parsed.eventId();
         } else {
             if (dto.getEventId() == null) {
                 throw new InvalidQrPayloadException("eventId is required for staff scan");
             }
-            personId = qrTokenService.verifyAndExtractPersonId(dto.getQrPayload());
+            lichnostId = qrTokenService.verifyAndExtractLichnostId(dto.getQrPayload());
             eventId = dto.getEventId();
         }
 
@@ -63,29 +63,29 @@ public class CheckInService {
         EventDetails event = eventGrpcClient.getEventDetails(eventId);
 
         Registration registration = registrationRepository
-                .findByPersonIdAndEventId(personId, eventId)
+                .findByLichnostIdAndEventId(lichnostId, eventId)
                 .orElse(null);
 
         if (registration == null && event.registrationRequired()) {
             throw new EntityNotFoundException(
-                    "Person " + personId + " is not registered for event " + eventId);
+                    "Person " + lichnostId + " is not registered for event " + eventId);
         }
 
-        if (checkInRepository.existsByPersonIdAndEventId(personId, eventId)) {
+        if (checkInRepository.existsByLichnostIdAndEventId(lichnostId, eventId)) {
             throw new DuplicateRecordException(
-                    "Person " + personId + " is already checked in for event " + eventId);
+                    "Person " + lichnostId + " is already checked in for event " + eventId);
         }
 
         CheckIn checkIn = CheckIn.builder()
                 .registration(registration)
-                .personId(personId)
+                .lichnostId(lichnostId)
                 .eventId(eventId)
                 .type(dto.getType())
                 .build();
 
         checkIn = checkInRepository.saveAndFlush(checkIn);
 
-        awardPointsIfApproved(event, personId);
+        awardPointsIfApproved(event, lichnostId);
 
         return mapToResponseDTO(checkIn);
     }
@@ -96,14 +96,14 @@ public class CheckInService {
      * ограничение MVP: без outbox/повторных попыток — если вызов не удался,
      * баллы придётся начислить вручную.
      */
-    private void awardPointsIfApproved(EventDetails event, long personId) {
+    private void awardPointsIfApproved(EventDetails event, long lichnostId) {
         if (event.pointsPerAttendee() == null || event.pointsPerAttendee() <= 0 || event.reviewedBy() == null) {
             return;
         }
         try {
-            transactionGrpcClient.awardEventReward(event.reviewedBy(), personId, event.pointsPerAttendee(), event.eventId());
+            transactionGrpcClient.awardEventReward(event.reviewedBy(), lichnostId, event.pointsPerAttendee(), event.eventId());
         } catch (Exception e) {
-            log.error("Failed to award event reward for person {} / event {}", personId, event.eventId(), e);
+            log.error("Failed to award event reward for person {} / event {}", lichnostId, event.eventId(), e);
         }
     }
 
@@ -147,7 +147,7 @@ public class CheckInService {
         return CheckInResponseDTO.builder()
                 .checkInId(checkIn.getCheckInId())
                 .registrationId(checkIn.getRegistration() != null ? checkIn.getRegistration().getRegistrationId() : null)
-                .personId(checkIn.getPersonId())
+                .lichnostId(checkIn.getLichnostId())
                 .eventId(checkIn.getEventId())
                 .type(checkIn.getType())
                 .createdAt(checkIn.getCreatedAt())

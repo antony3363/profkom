@@ -14,7 +14,7 @@ public class CheckInResponseDTO {
 
     private UUID checkInId;
     private UUID registrationId;
-    private long personId;
+    private long lichnostId;
     private UUID eventId;
     private CheckInType type;
     private LocalDateTime createdAt;

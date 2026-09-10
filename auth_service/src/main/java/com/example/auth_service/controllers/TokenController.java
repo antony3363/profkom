@@ -30,7 +30,7 @@ public class TokenController {
         String token = authorizationHeader.substring("Bearer ".length());
         AccessTokenClaims claims = jwtService.verify(token);
         return ResponseEntity.ok(VerifyResponseDTO.builder()
-                .personId(claims.personId())
+                .lichnostId(claims.lichnostId())
                 .role(claims.role())
                 .schoolId(claims.schoolId())
                 .expiresAtEpochSeconds(claims.expiresAtEpochSeconds())

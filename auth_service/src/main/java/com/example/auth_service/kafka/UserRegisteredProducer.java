@@ -13,6 +13,6 @@ public class UserRegisteredProducer {
     private final KafkaTemplate<String, UserRegisteredEvent> kafkaTemplate;
 
     public void publish(UserRegisteredEvent event) {
-        kafkaTemplate.send(TOPIC, String.valueOf(event.personId()), event);
+        kafkaTemplate.send(TOPIC, String.valueOf(event.lichnostId()), event);
     }
 }

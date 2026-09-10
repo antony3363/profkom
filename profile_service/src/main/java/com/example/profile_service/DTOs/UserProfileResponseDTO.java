@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class UserProfileResponseDTO {
-    private Long personId;
+    private Long lichnostId;
     private Long groupId;
     private String firstName;
     private String lastName;

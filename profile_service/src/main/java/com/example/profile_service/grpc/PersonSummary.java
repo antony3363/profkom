@@ -45,15 +45,15 @@ private static final long serialVersionUID = 0L;
   }
 
   private int bitField0_;
-  public static final int PERSON_ID_FIELD_NUMBER = 1;
-  private long personId_ = 0L;
+  public static final int LICHNOST_ID_FIELD_NUMBER = 1;
+  private long lichnostId_ = 0L;
   /**
-   * <code>int64 person_id = 1;</code>
-   * @return The personId.
+   * <code>int64 lichnost_id = 1;</code>
+   * @return The lichnostId.
    */
   @java.lang.Override
-  public long getPersonId() {
-    return personId_;
+  public long getLichnostId() {
+    return lichnostId_;
   }
 
   public static final int FULL_NAME_FIELD_NUMBER = 2;
@@ -156,8 +156,8 @@ private static final long serialVersionUID = 0L;
   @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output)
                       throws java.io.IOException {
-    if (personId_ != 0L) {
-      output.writeInt64(1, personId_);
+    if (lichnostId_ != 0L) {
+      output.writeInt64(1, lichnostId_);
     }
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(fullName_)) {
       com.google.protobuf.GeneratedMessage.writeString(output, 2, fullName_);
@@ -174,9 +174,9 @@ private static final long serialVersionUID = 0L;
     if (size != -1) return size;
 
     size = 0;
-    if (personId_ != 0L) {
+    if (lichnostId_ != 0L) {
       size += com.google.protobuf.CodedOutputStream
-        .computeInt64Size(1, personId_);
+        .computeInt64Size(1, lichnostId_);
     }
     if (!com.google.protobuf.GeneratedMessage.isStringEmpty(fullName_)) {
       size += com.google.protobuf.GeneratedMessage.computeStringSize(2, fullName_);
@@ -199,8 +199,8 @@ private static final long serialVersionUID = 0L;
     }
     com.example.profile_service.grpc.PersonSummary other = (com.example.profile_service.grpc.PersonSummary) obj;
 
-    if (getPersonId()
-        != other.getPersonId()) return false;
+    if (getLichnostId()
+        != other.getLichnostId()) return false;
     if (!getFullName()
         .equals(other.getFullName())) return false;
     if (hasGroupTitle() != other.hasGroupTitle()) return false;
@@ -219,9 +219,9 @@ private static final long serialVersionUID = 0L;
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
-    hash = (37 * hash) + PERSON_ID_FIELD_NUMBER;
+    hash = (37 * hash) + LICHNOST_ID_FIELD_NUMBER;
     hash = (53 * hash) + com.google.protobuf.Internal.hashLong(
-        getPersonId());
+        getLichnostId());
     hash = (37 * hash) + FULL_NAME_FIELD_NUMBER;
     hash = (53 * hash) + getFullName().hashCode();
     if (hasGroupTitle()) {
@@ -359,7 +359,7 @@ private static final long serialVersionUID = 0L;
     public Builder clear() {
       super.clear();
       bitField0_ = 0;
-      personId_ = 0L;
+      lichnostId_ = 0L;
       fullName_ = "";
       groupTitle_ = "";
       return this;
@@ -396,7 +396,7 @@ private static final long serialVersionUID = 0L;
     private void buildPartial0(com.example.profile_service.grpc.PersonSummary result) {
       int from_bitField0_ = bitField0_;
       if (((from_bitField0_ & 0x00000001) != 0)) {
-        result.personId_ = personId_;
+        result.lichnostId_ = lichnostId_;
       }
       if (((from_bitField0_ & 0x00000002) != 0)) {
         result.fullName_ = fullName_;
@@ -421,8 +421,8 @@ private static final long serialVersionUID = 0L;
 
     public Builder mergeFrom(com.example.profile_service.grpc.PersonSummary other) {
       if (other == com.example.profile_service.grpc.PersonSummary.getDefaultInstance()) return this;
-      if (other.getPersonId() != 0L) {
-        setPersonId(other.getPersonId());
+      if (other.getLichnostId() != 0L) {
+        setLichnostId(other.getLichnostId());
       }
       if (!other.getFullName().isEmpty()) {
         fullName_ = other.fullName_;
@@ -461,7 +461,7 @@ private static final long serialVersionUID = 0L;
               done = true;
               break;
             case 8: {
-              personId_ = input.readInt64();
+              lichnostId_ = input.readInt64();
               bitField0_ |= 0x00000001;
               break;
             } // case 8
@@ -492,34 +492,34 @@ private static final long serialVersionUID = 0L;
     }
     private int bitField0_;
 
-    private long personId_ ;
+    private long lichnostId_ ;
     /**
-     * <code>int64 person_id = 1;</code>
-     * @return The personId.
+     * <code>int64 lichnost_id = 1;</code>
+     * @return The lichnostId.
      */
     @java.lang.Override
-    public long getPersonId() {
-      return personId_;
+    public long getLichnostId() {
+      return lichnostId_;
     }
     /**
-     * <code>int64 person_id = 1;</code>
-     * @param value The personId to set.
+     * <code>int64 lichnost_id = 1;</code>
+     * @param value The lichnostId to set.
      * @return This builder for chaining.
      */
-    public Builder setPersonId(long value) {
+    public Builder setLichnostId(long value) {
 
-      personId_ = value;
+      lichnostId_ = value;
       bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
     /**
-     * <code>int64 person_id = 1;</code>
+     * <code>int64 lichnost_id = 1;</code>
      * @return This builder for chaining.
      */
-    public Builder clearPersonId() {
+    public Builder clearLichnostId() {
       bitField0_ = (bitField0_ & ~0x00000001);
-      personId_ = 0L;
+      lichnostId_ = 0L;
       onChanged();
       return this;
     }

@@ -23,7 +23,7 @@ public class Purchase {
     private UUID purchaseId;
 
     /**
-     * person_id покупателя — ссылка на Profile Service, без FK (другой сервис/БД).
+     * lichnost_id покупателя — ссылка на Profile Service, без FK (другой сервис/БД).
      */
     @Column(name = "buyer_id", nullable = false, updatable = false)
     private long buyerId;

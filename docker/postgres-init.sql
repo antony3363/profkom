@@ -1,0 +1,6 @@
+CREATE DATABASE auth_db;
+CREATE DATABASE event_db;
+CREATE DATABASE check_in_db;
+CREATE DATABASE shop_db;
+CREATE DATABASE transactions_db;
+CREATE DATABASE profile_db;

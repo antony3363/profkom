@@ -71,18 +71,18 @@ public class VolunteerService {
     public List<VolunteerRecordResponseDTO> getVolunteersByEventId(UUID eventId) {
         List<VolunteerRecord> volunteerRecords = volunteerRepository.findAllByEvent_EventId(eventId);
 
-        List<Long> personIds = volunteerRecords.stream()
+        List<Long> lichnostIds = volunteerRecords.stream()
                 .map(VolunteerRecord::getLichnostId)
                 .collect(Collectors.toList());
 
-        List<PersonLookupDTO> persons = personServiceClient.searchPersons(personIds);
+        List<PersonLookupDTO> persons = personServiceClient.searchPersons(lichnostIds);
 
-        Map<Long, VolunteerRecord> volunteersByPersonId = volunteerRecords.stream()
+        Map<Long, VolunteerRecord> volunteersByLichnostId = volunteerRecords.stream()
                 .collect(Collectors.toMap(VolunteerRecord::getLichnostId, v -> v));
 
         // order comes from person-service (already sorted by name / filtered by faculty there)
         return persons.stream()
-                .map(person -> mapToResponseDTO(volunteersByPersonId.get(person.personId()), person))
+                .map(person -> mapToResponseDTO(volunteersByLichnostId.get(person.lichnostId()), person))
                 .collect(Collectors.toList());
     }
 

@@ -74,7 +74,7 @@ public class EventController {
     public ResponseEntity<EventResponseDTO> acceptEvent(
             @PathVariable UUID eventId,
             @RequestHeader(value = "X-User-Role", required = false) String role,
-            @RequestHeader(value = "X-Person-Id", required = false) Long reviewerId,
+            @RequestHeader(value = "X-Lichnost-Id", required = false) Long reviewerId,
             @Valid @RequestBody EventModerationDecisionDTO decision) {
         requireAdmin(role, reviewerId);
         EventResponseDTO response = eventService.acceptEvent(eventId, decision, reviewerId);
@@ -85,7 +85,7 @@ public class EventController {
     public ResponseEntity<EventResponseDTO> deferEvent(
             @PathVariable UUID eventId,
             @RequestHeader(value = "X-User-Role", required = false) String role,
-            @RequestHeader(value = "X-Person-Id", required = false) Long reviewerId) {
+            @RequestHeader(value = "X-Lichnost-Id", required = false) Long reviewerId) {
         requireAdmin(role, reviewerId);
         EventResponseDTO response = eventService.deferEvent(eventId, reviewerId);
         return ResponseEntity.ok(response);
@@ -95,7 +95,7 @@ public class EventController {
     public ResponseEntity<EventResponseDTO> rejectEvent(
             @PathVariable UUID eventId,
             @RequestHeader(value = "X-User-Role", required = false) String role,
-            @RequestHeader(value = "X-Person-Id", required = false) Long reviewerId) {
+            @RequestHeader(value = "X-Lichnost-Id", required = false) Long reviewerId) {
         requireAdmin(role, reviewerId);
         EventResponseDTO response = eventService.rejectEvent(eventId, reviewerId);
         return ResponseEntity.ok(response);
