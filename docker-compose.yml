@@ -53,6 +53,7 @@ services:
       DB_HOST: postgres
       EUREKA_URL: http://eureka-server:8761/eureka/
       KAFKA_BOOTSTRAP_SERVERS: kafka:19092
+      SWAGGER_HOST: ${SWAGGER_HOST:-localhost}
     ports:
       - "8081:8081"
 

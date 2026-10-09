@@ -1,19 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ClaudeCodeEditorTabs">
-    <option name="activeSessionId" value="a90a9f5a-da66-4a4e-98c3-e8d6dbc54c65" />
+    <option name="activeSessionId" value="21fc7e8b-de15-41a2-bcd4-daf4c0b69433" />
     <option name="openSessionIds">
       <list>
         <option value="a90a9f5a-da66-4a4e-98c3-e8d6dbc54c65" />
+        <option value="a666f478-792d-43fa-9121-161c36a7cc6f" />
+        <option value="f75b040c-5bdd-4433-8ca3-d673fe556958" />
+        <option value="c63edf02-47c1-4cbc-a22c-cad456f13fef" />
+        <option value="ed0c5d32-804c-4820-815d-37f87aa185da" />
+        <option value="e5d901f8-f911-46f1-a63e-b67738e93f50" />
+        <option value="206734af-2fa0-48bf-93e7-748d4d1105ea" />
+        <option value="e98f1bf4-5dfb-41d1-9969-d6bdb40bcee2" />
+        <option value="21fc7e8b-de15-41a2-bcd4-daf4c0b69433" />
       </list>
     </option>
     <option name="sessionPaths">
       <map>
+        <entry key="21fc7e8b-de15-41a2-bcd4-daf4c0b69433" value="/sessions/6b527bf1-e842-4ef9-a513-a3217844cd61" />
+        <entry key="a666f478-792d-43fa-9121-161c36a7cc6f" value="/sessions/new" />
         <entry key="a90a9f5a-da66-4a4e-98c3-e8d6dbc54c65" value="/sessions/6dd34556-843c-466d-9220-78d15c180d85" />
       </map>
     </option>
     <option name="sessionTitles">
       <map>
+        <entry key="21fc7e8b-de15-41a2-bcd4-daf4c0b69433" value="docker-compose готов к запуску?" />
+        <entry key="a666f478-792d-43fa-9121-161c36a7cc6f" value="Claude Code" />
         <entry key="a90a9f5a-da66-4a4e-98c3-e8d6dbc54c65" value="Product product_id title description media_id pric" />
       </map>
     </option>

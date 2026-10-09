@@ -23,7 +23,7 @@ public class EventResponseDTO {
     private LocalDateTime registrationEndAt;
     private LocalDateTime startAt;
     private LocalDateTime endAt;
-    private List<String> availableGroupIds;
+    private List<Long> availableGroupIds;
     private long ownerId;
     private Long schoolId;
     private EventStatus status;

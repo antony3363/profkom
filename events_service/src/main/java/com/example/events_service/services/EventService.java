@@ -4,7 +4,9 @@ import com.example.events_service.DTOs.*;
 import com.example.events_service.entities.Event;
 import com.example.events_service.enums.EventModerationStatus;
 import com.example.events_service.enums.EventStatus;
+import com.example.events_service.exceptions.DuplicateRecordException;
 import com.example.events_service.exceptions.EntityNotFoundException;
+import com.example.events_service.exceptions.InvalidEventDataException;
 import com.example.events_service.repositories.EventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,12 @@ public class EventService {
 
     @Transactional
     public EventResponseDTO submitEvent(EventCreateRequestDTO dto) {
+        validateEventTiming(dto.getRegistrationStartAt(), dto.getRegistrationEndAt(), dto.getStartAt(), dto.getEndAt());
+
+        if (eventRepository.existsDuplicate(dto.getTitle(), dto.getStartAt(), dto.getEndAt(), dto.getSchoolId())) {
+            throw new DuplicateRecordException("Event with the same title and time range already exists");
+        }
+
         Event event = Event.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
@@ -73,14 +81,36 @@ public class EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
 
-        if (dto.getTitle() != null) event.setTitle(dto.getTitle());
+        if (dto.getTitle() != null) {
+            if (dto.getTitle().isBlank()) {
+                throw new InvalidEventDataException("title", "Event title must not be blank");
+            }
+            event.setTitle(dto.getTitle());
+        }
         if (dto.getDescription() != null) event.setDescription(dto.getDescription());
         if (dto.getShortDescription() != null) event.setShortDescription(dto.getShortDescription());
         if (dto.getImage() != null) event.setImage(dto.getImage());
-        if (dto.getRegistrationStartAt() != null) event.setRegistrationStartAt(dto.getRegistrationStartAt());
-        if (dto.getRegistrationEndAt() != null) event.setRegistrationEndAt(dto.getRegistrationEndAt());
-        if (dto.getStartAt() != null) event.setStartAt(dto.getStartAt());
-        if (dto.getEndAt() != null) event.setEndAt(dto.getEndAt());
+
+        // Валидируем и пересчитываем цепочку дат только если клиент реально прислал
+        // хоть одно из этих 4 полей — иначе мероприятие, сохранённое ДО того, как
+        // появилась эта проверка (и чьи даты ей не удовлетворяют), навсегда
+        // заблокировало бы правку любых других, неродственных полей.
+        boolean timingFieldProvided = dto.getRegistrationStartAt() != null || dto.getRegistrationEndAt() != null
+                || dto.getStartAt() != null || dto.getEndAt() != null;
+        if (timingFieldProvided) {
+            LocalDateTime registrationStartAt = dto.getRegistrationStartAt() != null
+                    ? dto.getRegistrationStartAt() : event.getRegistrationStartAt();
+            LocalDateTime registrationEndAt = dto.getRegistrationEndAt() != null
+                    ? dto.getRegistrationEndAt() : event.getRegistrationEndAt();
+            LocalDateTime startAt = dto.getStartAt() != null ? dto.getStartAt() : event.getStartAt();
+            LocalDateTime endAt = dto.getEndAt() != null ? dto.getEndAt() : event.getEndAt();
+            validateEventTiming(registrationStartAt, registrationEndAt, startAt, endAt);
+            event.setRegistrationStartAt(registrationStartAt);
+            event.setRegistrationEndAt(registrationEndAt);
+            event.setStartAt(startAt);
+            event.setEndAt(endAt);
+        }
+
         if (dto.getAvailableGroupIds() != null) event.setAvailableGroupIds(dto.getAvailableGroupIds());
         if (dto.getRegistrationRequired() != null) event.setRegistrationRequired(dto.getRegistrationRequired());
         if (dto.getStatus() != null) event.setStatus(dto.getStatus());
@@ -93,6 +123,12 @@ public class EventService {
     public EventResponseDTO acceptEvent(UUID eventId, EventModerationDecisionDTO decision, long reviewerId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
+
+        // Принятие заявки публикует мероприятие — не даём опубликовать то, чьи даты
+        // не проходят текущую цепочку (актуально для заявок, поданных до того, как
+        // появилась эта проверка). Исправляется через PUT с корректными датами.
+        validateEventTiming(event.getRegistrationStartAt(), event.getRegistrationEndAt(),
+                event.getStartAt(), event.getEndAt());
 
         event.setPointsPerAttendee(decision.getPointsPerAttendee());
         event.setModerationStatus(EventModerationStatus.APPROVED);
@@ -137,6 +173,25 @@ public class EventService {
             throw new EntityNotFoundException("Event not found with id: " + eventId);
         }
         eventRepository.deleteById(eventId);
+    }
+
+    /**
+     * Цепочка должна соблюдаться целиком: начало регистрации < конец регистрации
+     * <= начало мероприятия < конец мероприятия. Покрывает Б-5/Б-6 (регистрация),
+     * Б-7 (само мероприятие) и Б-8 (регистрация не может закрываться позже начала
+     * мероприятия) из багрепорта по EventController.
+     */
+    private void validateEventTiming(LocalDateTime registrationStartAt, LocalDateTime registrationEndAt,
+                                      LocalDateTime startAt, LocalDateTime endAt) {
+        if (!registrationStartAt.isBefore(registrationEndAt)) {
+            throw new InvalidEventDataException("registrationStartAt", "registrationStartAt must be before registrationEndAt");
+        }
+        if (registrationEndAt.isAfter(startAt)) {
+            throw new InvalidEventDataException("registrationEndAt", "registrationEndAt must not be after startAt");
+        }
+        if (!startAt.isBefore(endAt)) {
+            throw new InvalidEventDataException("startAt", "startAt must be before endAt");
+        }
     }
 
     private EventResponseDTO mapToResponseDTO(Event event) {

@@ -12,7 +12,9 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "events")
+@Table(name = "events", uniqueConstraints = @UniqueConstraint(
+        name = "uq_events_title_start_end_school",
+        columnNames = {"title", "start_at", "end_at", "school_id"}))
 @Getter
 @Setter
 @NoArgsConstructor
@@ -49,8 +51,8 @@ public class Event {
     @Column(name = "end_at", nullable = false)
     private LocalDateTime endAt;
 
-    @Column(name = "available_group_ids", columnDefinition = "TEXT[]")
-    private List<String> availableGroupIds;
+    @Column(name = "available_group_ids", columnDefinition = "BIGINT[]")
+    private List<Long> availableGroupIds;
 
     /**
      * Профорг школы, отправивший заявку на мероприятие.

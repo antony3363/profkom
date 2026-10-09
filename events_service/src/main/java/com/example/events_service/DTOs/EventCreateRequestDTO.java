@@ -38,7 +38,7 @@ public class EventCreateRequestDTO {
     @NotNull
     private LocalDateTime endAt;
 
-    private List<String> availableGroupIds;
+    private List<Long> availableGroupIds;
 
     @NotNull
     private long ownerId;

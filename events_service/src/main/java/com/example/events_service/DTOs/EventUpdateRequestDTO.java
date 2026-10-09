@@ -30,7 +30,7 @@ public class EventUpdateRequestDTO {
 
     private LocalDateTime endAt;
 
-    private List<String> availableGroupIds;
+    private List<Long> availableGroupIds;
 
     private Boolean registrationRequired;
 

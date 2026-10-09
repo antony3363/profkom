@@ -51,6 +51,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
+    @ExceptionHandler(InvalidEventDataException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidEventData(InvalidEventDataException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.BAD_REQUEST.value());
+        body.put("error", "Bad Request");
+        body.put("errors", Map.of(ex.getField(), ex.getMessage()));
+
+        return ResponseEntity.badRequest().body(body);
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, Object>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
         Map<String, Object> body = new HashMap<>();
