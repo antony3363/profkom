@@ -7,6 +7,7 @@ import com.example.profile_service.entities.Group;
 import com.example.profile_service.entities.UserProfile;
 import com.example.profile_service.exceptions.DuplicateRecordException;
 import com.example.profile_service.exceptions.EntityNotFoundException;
+import com.example.profile_service.exceptions.UnauthorizedException;
 import com.example.profile_service.repositories.GroupRepository;
 import com.example.profile_service.repositories.UserProfileRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,9 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserProfileService {
+
+    private static final String ROLE_ADMIN = "ADMIN";
+    private static final String ROLE_PROFORG_SCHOOL = "PROFORG_SCHOOL";
 
     private final UserProfileRepository userProfileRepository;
     private final GroupRepository groupRepository;
@@ -83,10 +87,33 @@ public class UserProfileService {
     }
 
     @Transactional(readOnly = true)
-    public List<UserProfileResponseDTO> getProfilesByGroup(Long groupId) {
+    public UserProfileResponseDTO getProfileById(Long lichnostId, String role, Long callerId, Long callerSchoolId) {
+        UserProfile profile = findProfile(lichnostId);
+        if (!ROLE_ADMIN.equals(role) && !lichnostId.equals(callerId)
+                && !(ROLE_PROFORG_SCHOOL.equals(role) && callerSchoolId != null && callerSchoolId.equals(resolveSchoolId(profile)))) {
+            throw new UnauthorizedException("Недостаточно прав для просмотра этого профиля");
+        }
+        return mapToResponseDTO(profile);
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserProfileResponseDTO> getProfilesByGroup(Long groupId, String role, Long callerSchoolId) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new EntityNotFoundException("Group not found with id: " + groupId));
+        Long schoolId = group.getProgram().getSchool().getSchoolId();
+        if (!ROLE_ADMIN.equals(role) && !(ROLE_PROFORG_SCHOOL.equals(role) && callerSchoolId != null && callerSchoolId.equals(schoolId))) {
+            throw new UnauthorizedException("Список профилей группы доступен только профоргу её школы или администратору");
+        }
         return userProfileRepository.findByGroup_GroupId(groupId).stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    private Long resolveSchoolId(UserProfile profile) {
+        if (profile.getGroup() == null) {
+            return null;
+        }
+        return profile.getGroup().getProgram().getSchool().getSchoolId();
     }
 
     @Transactional

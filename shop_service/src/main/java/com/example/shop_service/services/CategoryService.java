@@ -3,8 +3,10 @@ package com.example.shop_service.services;
 import com.example.shop_service.DTOs.CategoryCreateRequestDTO;
 import com.example.shop_service.DTOs.CategoryResponseDTO;
 import com.example.shop_service.entities.Category;
+import com.example.shop_service.exceptions.DuplicateRecordException;
 import com.example.shop_service.exceptions.EntityNotFoundException;
 import com.example.shop_service.repositories.CategoryRepository;
+import com.example.shop_service.repositories.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final ProductRepository productRepository;
 
     @Transactional
     public CategoryResponseDTO createCategory(CategoryCreateRequestDTO dto) {
@@ -25,6 +28,13 @@ public class CategoryService {
         if (dto.getParentId() != null) {
             parent = categoryRepository.findById(dto.getParentId())
                     .orElseThrow(() -> new EntityNotFoundException("Category not found with id: " + dto.getParentId()));
+        }
+
+        boolean duplicate = dto.getParentId() != null
+                ? categoryRepository.existsByParent_CategoryIdAndTitleIgnoreCase(dto.getParentId(), dto.getTitle())
+                : categoryRepository.existsByParentIsNullAndTitleIgnoreCase(dto.getTitle());
+        if (duplicate) {
+            throw new DuplicateRecordException("Category with this title already exists under the same parent");
         }
 
         Category category = Category.builder()
@@ -55,6 +65,12 @@ public class CategoryService {
     public void deleteCategory(UUID categoryId) {
         if (!categoryRepository.existsById(categoryId)) {
             throw new EntityNotFoundException("Category not found with id: " + categoryId);
+        }
+        if (categoryRepository.existsByParent_CategoryId(categoryId)) {
+            throw new IllegalStateException("Cannot delete category that has subcategories: " + categoryId);
+        }
+        if (productRepository.existsByCategory_CategoryIdAndDeletedAtIsNull(categoryId)) {
+            throw new IllegalStateException("Cannot delete category that still has products: " + categoryId);
         }
         categoryRepository.deleteById(categoryId);
     }

@@ -21,29 +21,41 @@ public class VolunteerRecordController {
     private final VolunteerService volunteerService;
 
     @PostMapping
-    public ResponseEntity<VolunteerRecordResponseDTO> createVolunteerRecord(@Valid @RequestBody VolunteerRecordCreateRequestDTO request) {
-        VolunteerRecordResponseDTO response = volunteerService.createVolunteer(request);
+    public ResponseEntity<VolunteerRecordResponseDTO> createVolunteerRecord(
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @RequestHeader(value = "X-Lichnost-Id", required = false) Long callerId,
+            @Valid @RequestBody VolunteerRecordCreateRequestDTO request) {
+        VolunteerRecordResponseDTO response = volunteerService.createVolunteer(request, role, callerId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{volunteerEntryId}")
-    public ResponseEntity<VolunteerRecordResponseDTO> getVolunteer(@PathVariable UUID volunteerEntryId) {
-        VolunteerRecordResponseDTO response = volunteerService.getVolunteerById(volunteerEntryId);
+    public ResponseEntity<VolunteerRecordResponseDTO> getVolunteer(
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @RequestHeader(value = "X-Lichnost-Id", required = false) Long callerId,
+            @RequestHeader(value = "X-School-Id", required = false) Long callerSchoolId,
+            @PathVariable UUID volunteerEntryId) {
+        VolunteerRecordResponseDTO response = volunteerService.getVolunteerById(volunteerEntryId, role, callerId, callerSchoolId);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping
     public ResponseEntity<List<VolunteerRecordResponseDTO>> getVolunteers(
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @RequestHeader(value = "X-School-Id", required = false) Long callerSchoolId,
             @RequestParam(required = false) UUID eventId) {
         List<VolunteerRecordResponseDTO> volunteers = (eventId != null)
-                ? volunteerService.getVolunteersByEventId(eventId)
-                : volunteerService.getAllVolunteers();
+                ? volunteerService.getVolunteersByEventId(eventId, role, callerSchoolId)
+                : volunteerService.getAllVolunteers(role);
         return ResponseEntity.ok(volunteers);
     }
 
     @DeleteMapping("/{volunteerEntryId}")
-    public ResponseEntity<Void> deleteVolunteer(@PathVariable UUID volunteerEntryId) {
-        volunteerService.deleteVolunteer(volunteerEntryId);
+    public ResponseEntity<Void> deleteVolunteer(
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @RequestHeader(value = "X-Lichnost-Id", required = false) Long callerId,
+            @PathVariable UUID volunteerEntryId) {
+        volunteerService.deleteVolunteer(volunteerEntryId, role, callerId);
         return ResponseEntity.noContent().build();
     }
 

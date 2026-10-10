@@ -7,6 +7,7 @@ import com.example.events_service.enums.EventStatus;
 import com.example.events_service.exceptions.DuplicateRecordException;
 import com.example.events_service.exceptions.EntityNotFoundException;
 import com.example.events_service.exceptions.InvalidEventDataException;
+import com.example.events_service.exceptions.UnauthorizedException;
 import com.example.events_service.repositories.EventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,9 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class EventService {
+
+    private static final String ROLE_ADMIN = "ADMIN";
+    private static final String ROLE_PROFORG_SCHOOL = "PROFORG_SCHOOL";
 
     private final EventRepository eventRepository;
 
@@ -77,9 +81,10 @@ public class EventService {
     }
 
     @Transactional
-    public EventResponseDTO updateEvent(UUID eventId, EventUpdateRequestDTO dto) {
+    public EventResponseDTO updateEvent(UUID eventId, EventUpdateRequestDTO dto, String role, Long callerSchoolId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
+        requireOwnerOrAdmin(event, role, callerSchoolId);
 
         if (dto.getTitle() != null) {
             if (dto.getTitle().isBlank()) {
@@ -168,11 +173,21 @@ public class EventService {
     }
 
     @Transactional
-    public void deleteEvent(UUID eventId) {
-        if (!eventRepository.existsById(eventId)) {
-            throw new EntityNotFoundException("Event not found with id: " + eventId);
-        }
+    public void deleteEvent(UUID eventId, String role, Long callerSchoolId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
+        requireOwnerOrAdmin(event, role, callerSchoolId);
         eventRepository.deleteById(eventId);
+    }
+
+    private void requireOwnerOrAdmin(Event event, String role, Long callerSchoolId) {
+        if (ROLE_ADMIN.equals(role)) {
+            return;
+        }
+        if (ROLE_PROFORG_SCHOOL.equals(role) && callerSchoolId != null && callerSchoolId.equals(event.getSchoolId())) {
+            return;
+        }
+        throw new UnauthorizedException("Редактировать мероприятие может только профорг его школы или администратор");
     }
 
     /**

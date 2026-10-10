@@ -40,13 +40,20 @@ public class UserProfileController {
     }
 
     @GetMapping("/{lichnostId}")
-    public ResponseEntity<UserProfileResponseDTO> getProfile(@PathVariable Long lichnostId) {
-        return ResponseEntity.ok(userProfileService.getProfileById(lichnostId));
+    public ResponseEntity<UserProfileResponseDTO> getProfile(
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @RequestHeader(value = "X-Lichnost-Id", required = false) Long callerId,
+            @RequestHeader(value = "X-School-Id", required = false) Long callerSchoolId,
+            @PathVariable Long lichnostId) {
+        return ResponseEntity.ok(userProfileService.getProfileById(lichnostId, role, callerId, callerSchoolId));
     }
 
     @GetMapping
-    public ResponseEntity<List<UserProfileResponseDTO>> getProfilesByGroup(@RequestParam Long groupId) {
-        return ResponseEntity.ok(userProfileService.getProfilesByGroup(groupId));
+    public ResponseEntity<List<UserProfileResponseDTO>> getProfilesByGroup(
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @RequestHeader(value = "X-School-Id", required = false) Long callerSchoolId,
+            @RequestParam Long groupId) {
+        return ResponseEntity.ok(userProfileService.getProfilesByGroup(groupId, role, callerSchoolId));
     }
 
     @PutMapping("/me")

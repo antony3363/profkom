@@ -2,6 +2,7 @@ package com.example.shop_service.controllers;
 
 import com.example.shop_service.DTOs.ProductMediaCreateRequestDTO;
 import com.example.shop_service.DTOs.ProductMediaResponseDTO;
+import com.example.shop_service.exceptions.UnauthorizedException;
 import com.example.shop_service.services.ProductMediaService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +18,15 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ProductMediaController {
 
+    private static final String ROLE_ADMIN = "ADMIN";
+
     private final ProductMediaService productMediaService;
 
     @PostMapping
-    public ResponseEntity<ProductMediaResponseDTO> addMedia(@Valid @RequestBody ProductMediaCreateRequestDTO dto) {
+    public ResponseEntity<ProductMediaResponseDTO> addMedia(
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @Valid @RequestBody ProductMediaCreateRequestDTO dto) {
+        requireAdmin(role);
         ProductMediaResponseDTO response = productMediaService.addMedia(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -31,8 +37,17 @@ public class ProductMediaController {
     }
 
     @DeleteMapping("/{mediaId}")
-    public ResponseEntity<Void> deleteMedia(@PathVariable UUID mediaId) {
+    public ResponseEntity<Void> deleteMedia(
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @PathVariable UUID mediaId) {
+        requireAdmin(role);
         productMediaService.deleteMedia(mediaId);
         return ResponseEntity.noContent().build();
+    }
+
+    private void requireAdmin(String role) {
+        if (!ROLE_ADMIN.equals(role)) {
+            throw new UnauthorizedException("Только администратор управляет медиа товаров");
+        }
     }
 }
