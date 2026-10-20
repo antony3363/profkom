@@ -26,7 +26,7 @@ SERVICES = [
         "Schools": ["PK school_id", "title", "FK proforg_id (функциональный)"],
     }),
     ("Events Service", "#FCEBD8", "#D98A2B", "#D98A2B", {
-        "Event": ["PK event_id", "title", "description", "short_description", "image",
+        "Event": ["PK event_id", "title", "description", "short_description", "image", "location",
                   "registration_start_at", "registration_end_at", "start_at", "end_at",
                   "available_group_ids", "FK↗Profile owner_id (шк. профорг)",
                   "FK↗Profile school_id (nullable)", "status (DRAFT/PUBLISHED/CANCELLED/ARCHIVED)",

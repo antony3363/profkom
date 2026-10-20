@@ -1,6 +1,7 @@
 package com.example.events_service.controllers;
 
 import com.example.events_service.DTOs.*;
+import com.example.events_service.enums.EventModerationStatus;
 import com.example.events_service.exceptions.UnauthorizedException;
 import com.example.events_service.services.EventService;
 import jakarta.validation.Valid;
@@ -70,6 +71,20 @@ public class EventController {
     public ResponseEntity<EventShortDescriptionResponse> getShortEvent(@PathVariable UUID eventId) {
         EventShortDescriptionResponse response = eventService.getShortEventDescription(eventId);
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Очередь заявок на модерацию (по умолчанию — ещё не рассмотренные). Только
+     * администратор: заявки других школ не должны быть видны всем подряд.
+     */
+    @GetMapping("/moderation")
+    public ResponseEntity<List<EventResponseDTO>> getEventsForModeration(
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @RequestParam(required = false, defaultValue = "SUBMITTED") EventModerationStatus status) {
+        if (!ROLE_ADMIN.equals(role)) {
+            throw new UnauthorizedException("Список заявок на модерации доступен только администратору");
+        }
+        return ResponseEntity.ok(eventService.getEventsForModeration(status));
     }
 
     @PostMapping("/{eventId}/accept")

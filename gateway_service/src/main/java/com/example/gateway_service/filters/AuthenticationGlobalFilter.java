@@ -50,6 +50,8 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
                 })
                 .build();
 
+
+
         if (authHeader == null || authHeader.isBlank()) {
             return chain.filter(exchange.mutate().request(strippedRequest).build());
         }
@@ -59,6 +61,9 @@ public class AuthenticationGlobalFilter implements GlobalFilter, Ordered {
         WebClient.RequestHeadersSpec<?> headersSpec = uriSpec.header(HttpHeaders.AUTHORIZATION, authHeader);
         WebClient.ResponseSpec responseSpec = headersSpec.retrieve();
         Mono<VerifyResponse> verifyMono = responseSpec.bodyToMono(VerifyResponse.class);
+
+
+
 
         return verifyMono
                 .flatMap(verify -> {

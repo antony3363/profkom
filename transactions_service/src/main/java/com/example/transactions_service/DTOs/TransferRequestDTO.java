@@ -1,5 +1,6 @@
 package com.example.transactions_service.DTOs;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
@@ -24,4 +25,9 @@ public class TransferRequestDTO {
     private Long amount;
 
     private String description;
+
+    @AssertTrue(message = "Exactly one of receiverUserId or receiverSchoolId must be set")
+    private boolean isReceiverSet() {
+        return (receiverUserId != null) ^ (receiverSchoolId != null);
+    }
 }

@@ -18,13 +18,15 @@ public class EventCreateRequestDTO {
     @NotBlank
     private String title;
 
-    @NotNull
+    @NotBlank
     private String description;
 
-    @NotNull
+    @NotBlank
     private String shortDescription;
 
     private String image;
+
+    private String location;
 
     @NotNull
     private LocalDateTime registrationStartAt;
@@ -41,7 +43,7 @@ public class EventCreateRequestDTO {
     private List<Long> availableGroupIds;
 
     @NotNull
-    private long ownerId;
+    private Long ownerId;
 
     /**
      * Школа, от лица которой подаётся заявка. Null допустим только для служебных

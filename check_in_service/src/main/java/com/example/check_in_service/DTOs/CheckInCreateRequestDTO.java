@@ -1,6 +1,7 @@
 package com.example.check_in_service.DTOs;
 
 import com.example.check_in_service.enums.CheckInType;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -26,4 +27,9 @@ public class CheckInCreateRequestDTO {
      * Required only for STAFF_SCAN: the event the volunteer's station is checking people into.
      */
     private UUID eventId;
+
+    @AssertTrue(message = "eventId is required for STAFF_SCAN")
+    private boolean isEventIdValidForType() {
+        return type != CheckInType.STAFF_SCAN || eventId != null;
+    }
 }

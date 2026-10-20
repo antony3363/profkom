@@ -22,6 +22,8 @@ public class EventUpdateRequestDTO {
 
     private String image;
 
+    private String location;
+
     private LocalDateTime registrationStartAt;
 
     private LocalDateTime registrationEndAt;

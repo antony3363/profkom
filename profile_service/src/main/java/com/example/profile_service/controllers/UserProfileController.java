@@ -30,6 +30,9 @@ public class UserProfileController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userProfileService.createProfile(dto));
     }
 
+    //@GetMapping
+
+
     @GetMapping("/me")
     public ResponseEntity<UserProfileResponseDTO> getMyProfile(
             @RequestHeader(value = "X-Lichnost-Id", required = false) Long lichnostId) {
@@ -48,12 +51,22 @@ public class UserProfileController {
         return ResponseEntity.ok(userProfileService.getProfileById(lichnostId, role, callerId, callerSchoolId));
     }
 
+
+
     @GetMapping
-    public ResponseEntity<List<UserProfileResponseDTO>> getProfilesByGroup(
+    public ResponseEntity<List<UserProfileResponseDTO>> getProfiles(
             @RequestHeader(value = "X-User-Role", required = false) String role,
-            @RequestHeader(value = "X-School-Id", required = false) Long callerSchoolId,
-            @RequestParam Long groupId) {
-        return ResponseEntity.ok(userProfileService.getProfilesByGroup(groupId, role, callerSchoolId));
+            @RequestParam(required = false) Long groupId,
+            @RequestParam(required = false) Long schoolId) {
+
+        if (groupId != null) {
+            return ResponseEntity.ok(userProfileService.getProfilesByGroup(groupId, role));
+        }
+        if (schoolId != null) {
+            return ResponseEntity.ok(userProfileService.getProfilesBySchool(schoolId, role));
+        }
+
+        return ResponseEntity.ok(userProfileService.getProfiles(role));
     }
 
     @PutMapping("/me")

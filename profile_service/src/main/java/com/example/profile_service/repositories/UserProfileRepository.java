@@ -10,6 +10,7 @@ import java.util.List;
 public interface UserProfileRepository extends JpaRepository<UserProfile, Long> {
     List<UserProfile> findByGroup_GroupId(Long groupId);
     List<UserProfile> findByLichnostIdIn(List<Long> lichnostIds);
+    List<UserProfile> findByGroup_Program_School_SchoolId(Long schoolId);
     boolean existsByEmail(String email);
     boolean existsByCardNumber(String cardNumber);
 }

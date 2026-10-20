@@ -40,6 +40,7 @@ public class EventService {
                 .description(dto.getDescription())
                 .shortDescription(dto.getShortDescription())
                 .image(dto.getImage())
+                .location(dto.getLocation())
                 .registrationStartAt(dto.getRegistrationStartAt())
                 .registrationEndAt(dto.getRegistrationEndAt())
                 .startAt(dto.getStartAt())
@@ -74,6 +75,13 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
+    public List<EventResponseDTO> getEventsForModeration(EventModerationStatus moderationStatus) {
+        return eventRepository.findByModerationStatus(moderationStatus).stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public EventShortDescriptionResponse getShortEventDescription(UUID eventId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
@@ -95,6 +103,7 @@ public class EventService {
         if (dto.getDescription() != null) event.setDescription(dto.getDescription());
         if (dto.getShortDescription() != null) event.setShortDescription(dto.getShortDescription());
         if (dto.getImage() != null) event.setImage(dto.getImage());
+        if (dto.getLocation() != null) event.setLocation(dto.getLocation());
 
         // Валидируем и пересчитываем цепочку дат только если клиент реально прислал
         // хоть одно из этих 4 полей — иначе мероприятие, сохранённое ДО того, как
@@ -216,6 +225,7 @@ public class EventService {
                 .description(event.getDescription())
                 .shortDescription(event.getShortDescription())
                 .image(event.getImage())
+                .location(event.getLocation())
                 .registrationStartAt(event.getRegistrationStartAt())
                 .registrationEndAt(event.getRegistrationEndAt())
                 .startAt(event.getStartAt())
@@ -241,6 +251,7 @@ public class EventService {
                 .title(event.getTitle())
                 .shortDescription(event.getShortDescription())
                 .image(event.getImage())
+                .location(event.getLocation())
                 .startAt(event.getStartAt())
                 .endAt(event.getEndAt())
                 .registrationEndAt(event.getRegistrationEndAt())

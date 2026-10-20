@@ -4,11 +4,13 @@ import com.example.profile_service.DTOs.UserProfileCreateRequestDTO;
 import com.example.profile_service.DTOs.UserProfileResponseDTO;
 import com.example.profile_service.DTOs.UserProfileUpdateRequestDTO;
 import com.example.profile_service.entities.Group;
+import com.example.profile_service.entities.School;
 import com.example.profile_service.entities.UserProfile;
 import com.example.profile_service.exceptions.DuplicateRecordException;
 import com.example.profile_service.exceptions.EntityNotFoundException;
 import com.example.profile_service.exceptions.UnauthorizedException;
 import com.example.profile_service.repositories.GroupRepository;
+import com.example.profile_service.repositories.SchoolRepository;
 import com.example.profile_service.repositories.UserProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ public class UserProfileService {
 
     private final UserProfileRepository userProfileRepository;
     private final GroupRepository groupRepository;
+    private final SchoolRepository schoolRepository;
 
     /**
      * В целевой архитектуре создаётся Profile Service автоматически по событию
@@ -96,18 +99,73 @@ public class UserProfileService {
         return mapToResponseDTO(profile);
     }
 
+
+
+
+
     @Transactional(readOnly = true)
-    public List<UserProfileResponseDTO> getProfilesByGroup(Long groupId, String role, Long callerSchoolId) {
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new EntityNotFoundException("Group not found with id: " + groupId));
-        Long schoolId = group.getProgram().getSchool().getSchoolId();
-        if (!ROLE_ADMIN.equals(role) && !(ROLE_PROFORG_SCHOOL.equals(role) && callerSchoolId != null && callerSchoolId.equals(schoolId))) {
-            throw new UnauthorizedException("Список профилей группы доступен только профоргу её школы или администратору");
+    public List<UserProfileResponseDTO> getProfiles(String role) {
+        if (!ROLE_ADMIN.equals(role) && !ROLE_PROFORG_SCHOOL.equals(role)) {
+            throw new UnauthorizedException("Список профилей доступен только профоргу или администратору");
+        }
+
+        return userProfileRepository.findAll().stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+
+//    @Transactional(readOnly = true)
+//    public List<UserProfileResponseDTO> getProfilesBySchoolAndGroup(Long schoolId, Long groupId, String role) {
+//
+//        groupRepository.findById(groupId)
+//                .orElseThrow(() -> new EntityNotFoundException("Group not found with id: " + groupId));
+//
+//        schoolRepository.findById(schoolId)
+//                .orElseThrow(() -> new EntityNotFoundException("School not found with id: " + schoolId));
+//
+//        if (!ROLE_ADMIN.equals(role) && !ROLE_PROFORG_SCHOOL.equals(role)) {
+//            throw new UnauthorizedException("Список профилей доступен только профоргу или администратору");
+//        }
+//
+//        return userProfileRepository.findBySchoolIdAndGroupId(schoolId, groupId).stream()
+//                .map(this::mapToResponseDTO)
+//                .collect(Collectors.toList());
+//    }
+
+
+    @Transactional(readOnly = true)
+    public List<UserProfileResponseDTO> getProfilesByGroup(Long groupId, String role) {
+
+        if (!groupRepository.existsById(groupId)) {
+            throw new EntityNotFoundException("group not found with id: " + groupId);
+        }
+
+        if (!ROLE_ADMIN.equals(role) && !ROLE_PROFORG_SCHOOL.equals(role)) {
+            throw new UnauthorizedException("Список профилей доступен только профоргу или администратору");
         }
         return userProfileRepository.findByGroup_GroupId(groupId).stream()
                 .map(this::mapToResponseDTO)
                 .collect(Collectors.toList());
     }
+
+
+    @Transactional(readOnly = true)
+    public List<UserProfileResponseDTO> getProfilesBySchool(Long schoolId, String role) {
+
+        if (!schoolRepository.existsById(schoolId)) {
+            throw new EntityNotFoundException("School not found with id: " + schoolId);
+        }
+
+        if (!ROLE_ADMIN.equals(role) && !ROLE_PROFORG_SCHOOL.equals(role)) {
+            throw new UnauthorizedException("Список профилей доступен только профоргу или администратору");
+        }
+        return userProfileRepository.findByGroup_Program_School_SchoolId(schoolId).stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+
 
     private Long resolveSchoolId(UserProfile profile) {
         if (profile.getGroup() == null) {

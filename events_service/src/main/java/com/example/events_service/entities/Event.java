@@ -39,6 +39,13 @@ public class Event {
     @Column(name = "image")
     private String image;
 
+    /**
+     * Свободный текст — онлайн/офлайн и формат адреса пока не формализованы
+     * (открытый вопрос ТЗ), поэтому строка без структуры и без обязательности.
+     */
+    @Column(name = "location")
+    private String location;
+
     @Column(name = "registration_start_at", nullable = false)
     private LocalDateTime registrationStartAt;
 

@@ -117,9 +117,9 @@ http://<gateway-host>:8090
 
 | Метод и путь | Кто | Тело запроса | Ответ |
 |---|---|---|---|
-| `POST /api/v1/events` | ⚠ Требует уточнения, каким клиентом реально пользуются профорги — доступно роли `PROFORG_SCHOOL` (только для своей школы) или `ADMIN`. Подача заявки на мероприятие. Сервер проверяет цепочку `registrationStartAt < registrationEndAt <= startAt < endAt` (400, если нарушена) и отклоняет точный дубликат по `title`+`startAt`+`endAt` (409). | `{ "title": string, "description": string, "shortDescription": string, "image"?: string, "registrationStartAt": datetime, "registrationEndAt": datetime, "startAt": datetime, "endAt": datetime, "availableGroupIds"?: number[], "ownerId": number, "schoolId"?: number, "requestedPointsPerAttendee"?: number, "registrationRequired": boolean }` | `201`: `EventResponseDTO` |
+| `POST /api/v1/events` | ⚠ Требует уточнения, каким клиентом реально пользуются профорги — доступно роли `PROFORG_SCHOOL` (только для своей школы) или `ADMIN`. Подача заявки на мероприятие. Сервер проверяет цепочку `registrationStartAt < registrationEndAt <= startAt < endAt` (400, если нарушена) и отклоняет точный дубликат по `title`+`startAt`+`endAt` (409). | `{ "title": string, "description": string, "shortDescription": string, "image"?: string, "location"?: string, "registrationStartAt": datetime, "registrationEndAt": datetime, "startAt": datetime, "endAt": datetime, "availableGroupIds"?: number[], "ownerId": number, "schoolId"?: number, "requestedPointsPerAttendee"?: number, "registrationRequired": boolean }` | `201`: `EventResponseDTO` |
 | `GET /api/v1/events/{eventId}` | Оба (полная карточка мероприятия) | — | `200`: `EventResponseDTO` |
-| `GET /api/v1/events` | Оба (лента/каталог мероприятий) | — | `200`: массив `EventCatalogDTO`: `{ "eventId", "title", "shortDescription", "image", "startAt", "endAt", "registrationEndAt", "pointsPerAttendee": number|null }` |
+| `GET /api/v1/events` | Оба (лента/каталог мероприятий) | — | `200`: массив `EventCatalogDTO`: `{ "eventId", "title", "shortDescription", "image", "location", "startAt", "endAt", "registrationEndAt", "pointsPerAttendee": number|null }` |
 | `GET /api/v1/events/short/{eventId}` | Оба (короткая карточка, например для списков/уведомлений) | — | `200`: `{ "eventId", "title", "shortDescription", "startAt", "endAt" }` |
 | `PUT /api/v1/events/{eventId}` | ⚠ Нет проверки роли вообще — любой запрос пройдёт. По смыслу должно быть ограничено. Та же проверка дат, что и при создании, применяется к итоговому состоянию (с учётом уже сохранённых значений для полей, которые вы не передали). Пустой `title` теперь отклоняется (400). ⚠ Пустая строка `""` для `registrationStartAt`/`registrationEndAt`/`startAt`/`endAt` технически неотличима от отсутствующего поля (Jackson превращает `""` в `null` до любой валидации) — такое значение сейчас молча игнорируется (старое значение остаётся), а не отклоняется с ошибкой. | `{ любое подмножество полей создания + "status"?: "DRAFT"\|"PUBLISHED"\|"CANCELLED"\|"ARCHIVED" }` | `200`: `EventResponseDTO`. `400`, если итоговые даты нарушают порядок или `title` пустой. |
 | `DELETE /api/v1/events/{eventId}` | ⚠ Нет проверки роли вообще. | — | `204` |
@@ -132,6 +132,7 @@ http://<gateway-host>:8090
 {
   "eventId": uuid, "title": string, "description": string, "shortDescription": string,
   "image": string | null,
+  "location": string | null,
   "registrationStartAt": datetime, "registrationEndAt": datetime, "startAt": datetime, "endAt": datetime,
   "availableGroupIds": number[] | null,
   "ownerId": number, "schoolId": number | null,
