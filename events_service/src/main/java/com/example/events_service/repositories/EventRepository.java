@@ -16,7 +16,16 @@ import java.util.UUID;
 public interface EventRepository extends JpaRepository<Event, UUID> {
     Optional<Event> findByEventId(UUID eventId);
 
-    List<Event> findByModerationStatus(EventModerationStatus moderationStatus);
+    /**
+     * Для списка администратора: без разбора по status/moderationStatus (включая
+     * неподтверждённые) — единственный критерий, время. Черновики (DRAFT) явно
+     * исключены — админ их не должен видеть вообще. Сортировка — на фронте.
+     */
+    List<Event> findByEndAtBeforeAndModerationStatusNot(LocalDateTime cutoff, EventModerationStatus excludedStatus);
+
+    List<Event> findByEndAtGreaterThanEqualAndModerationStatusNot(LocalDateTime cutoff, EventModerationStatus excludedStatus);
+
+    List<Event> findByOwnerIdAndModerationStatus(long ownerId, EventModerationStatus moderationStatus);
 
     /**
      * schoolId null-safe: два служебных мероприятия (schoolId=null) НЕ считаются

@@ -24,10 +24,6 @@ public class EventUpdateRequestDTO {
 
     private String location;
 
-    private LocalDateTime registrationStartAt;
-
-    private LocalDateTime registrationEndAt;
-
     private LocalDateTime startAt;
 
     private LocalDateTime endAt;

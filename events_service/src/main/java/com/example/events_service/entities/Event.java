@@ -27,13 +27,17 @@ public class Event {
     @Column(name = "event_id", nullable = false, updatable = false)
     private UUID eventId;
 
-    @Column(name = "title", nullable = false)
+    /**
+     * Nullable — черновик (moderationStatus=DRAFT) может быть сохранён без названия.
+     * Обязательность фактически проверяется на submit (EventService.submitDraft).
+     */
+    @Column(name = "title")
     private String title;
 
-    @Column(name = "description", columnDefinition = "TEXT", nullable = false)
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "short_description", nullable = false)
+    @Column(name = "short_description")
     private String shortDescription;
 
     @Column(name = "image")
@@ -46,16 +50,11 @@ public class Event {
     @Column(name = "location")
     private String location;
 
-    @Column(name = "registration_start_at", nullable = false)
-    private LocalDateTime registrationStartAt;
-
-    @Column(name = "registration_end_at", nullable = false)
-    private LocalDateTime registrationEndAt;
-
-    @Column(name = "start_at", nullable = false)
+    // nullable — см. комментарий у title выше, то же самое для черновиков
+    @Column(name = "start_at")
     private LocalDateTime startAt;
 
-    @Column(name = "end_at", nullable = false)
+    @Column(name = "end_at")
     private LocalDateTime endAt;
 
     @Column(name = "available_group_ids", columnDefinition = "BIGINT[]")

@@ -29,12 +29,6 @@ public class EventCreateRequestDTO {
     private String location;
 
     @NotNull
-    private LocalDateTime registrationStartAt;
-
-    @NotNull
-    private LocalDateTime registrationEndAt;
-
-    @NotNull
     private LocalDateTime startAt;
 
     @NotNull

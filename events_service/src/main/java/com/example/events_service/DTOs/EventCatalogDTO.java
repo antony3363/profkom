@@ -18,6 +18,5 @@ public class EventCatalogDTO {
     private String location;
     private LocalDateTime startAt;
     private LocalDateTime endAt;
-    private LocalDateTime registrationEndAt;
     private Integer pointsPerAttendee;
 }

@@ -1,7 +1,6 @@
 package com.example.events_service.controllers;
 
 import com.example.events_service.DTOs.*;
-import com.example.events_service.enums.EventModerationStatus;
 import com.example.events_service.exceptions.UnauthorizedException;
 import com.example.events_service.services.EventService;
 import jakarta.validation.Valid;
@@ -45,9 +44,15 @@ public class EventController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    /**
+     * Черновик (moderationStatus=DRAFT) виден только своему владельцу — для всех
+     * остальных событий доступ открытый, как раньше.
+     */
     @GetMapping("/{eventId}")
-    public ResponseEntity<EventResponseDTO> getEvent(@PathVariable UUID eventId) {
-        EventResponseDTO response = eventService.getEventById(eventId);
+    public ResponseEntity<EventResponseDTO> getEvent(
+            @RequestHeader(value = "X-Lichnost-Id", required = false) Long callerId,
+            @PathVariable UUID eventId) {
+        EventResponseDTO response = eventService.getEventById(eventId, callerId);
         return ResponseEntity.ok(response);
     }
 
@@ -74,17 +79,79 @@ public class EventController {
     }
 
     /**
-     * Очередь заявок на модерацию (по умолчанию — ещё не рассмотренные). Только
-     * администратор: заявки других школ не должны быть видны всем подряд.
+     * Полный список мероприятий/заявок для администратора — без разбора по статусу
+     * (черновики профоргов исключены принудительно, см. EventService), единственный
+     * фильтр — прошедшие/не прошедшие. Сортировка — на фронте.
      */
     @GetMapping("/moderation")
-    public ResponseEntity<List<EventResponseDTO>> getEventsForModeration(
+    public ResponseEntity<List<EventResponseDTO>> getEventsForAdmin(
             @RequestHeader(value = "X-User-Role", required = false) String role,
-            @RequestParam(required = false, defaultValue = "SUBMITTED") EventModerationStatus status) {
+            @RequestParam(required = false, defaultValue = "false") boolean past) {
         if (!ROLE_ADMIN.equals(role)) {
-            throw new UnauthorizedException("Список заявок на модерации доступен только администратору");
+            throw new UnauthorizedException("Список мероприятий доступен только администратору");
         }
-        return ResponseEntity.ok(eventService.getEventsForModeration(status));
+        return ResponseEntity.ok(eventService.getEventsForAdmin(past));
+    }
+
+    /**
+     * Сохранить черновик заявки — почти без обязательных полей, владелец берётся
+     * из токена (X-Lichnost-Id), а не из тела запроса.
+     */
+    @PostMapping("/draft")
+    public ResponseEntity<EventResponseDTO> saveDraft(
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @RequestHeader(value = "X-Lichnost-Id", required = false) Long callerId,
+            @Valid @RequestBody EventDraftRequestDTO dto) {
+        if (callerId == null) {
+            throw new UnauthorizedException("Missing X-Lichnost-Id header");
+        }
+        if (!ROLE_PROFORG_SCHOOL.equals(role) && !ROLE_ADMIN.equals(role)) {
+            throw new UnauthorizedException("Черновик может создать только профорг школы или администратор");
+        }
+        EventResponseDTO response = eventService.saveNewDraft(dto, callerId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    /**
+     * Дозаполнить/изменить ранее сохранённый черновик — только его владелец.
+     */
+    @PutMapping("/draft/{eventId}")
+    public ResponseEntity<EventResponseDTO> updateDraft(
+            @RequestHeader(value = "X-Lichnost-Id", required = false) Long callerId,
+            @PathVariable UUID eventId,
+            @RequestBody EventDraftRequestDTO dto) {
+        if (callerId == null) {
+            throw new UnauthorizedException("Missing X-Lichnost-Id header");
+        }
+        EventResponseDTO response = eventService.updateDraft(eventId, dto, callerId);
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Черновики текущего пользователя — чтобы вернуться и продолжить заполнение.
+     */
+    @GetMapping("/my-drafts")
+    public ResponseEntity<List<EventResponseDTO>> getMyDrafts(
+            @RequestHeader(value = "X-Lichnost-Id", required = false) Long callerId) {
+        if (callerId == null) {
+            throw new UnauthorizedException("Missing X-Lichnost-Id header");
+        }
+        return ResponseEntity.ok(eventService.getMyDrafts(callerId));
+    }
+
+    /**
+     * Отправить черновик на рассмотрение — здесь впервые проверяется полнота
+     * всех обязательных полей (при сохранении черновика они не требовались).
+     */
+    @PostMapping("/{eventId}/submit")
+    public ResponseEntity<EventResponseDTO> submitDraft(
+            @RequestHeader(value = "X-Lichnost-Id", required = false) Long callerId,
+            @PathVariable UUID eventId) {
+        if (callerId == null) {
+            throw new UnauthorizedException("Missing X-Lichnost-Id header");
+        }
+        EventResponseDTO response = eventService.submitDraft(eventId, callerId);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/{eventId}/accept")

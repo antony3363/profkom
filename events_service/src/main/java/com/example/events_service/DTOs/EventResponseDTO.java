@@ -20,8 +20,6 @@ public class EventResponseDTO {
     private String shortDescription;
     private String image;
     private String location;
-    private LocalDateTime registrationStartAt;
-    private LocalDateTime registrationEndAt;
     private LocalDateTime startAt;
     private LocalDateTime endAt;
     private List<Long> availableGroupIds;
