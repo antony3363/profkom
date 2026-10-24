@@ -119,28 +119,6 @@ public class EventService {
         return mapToResponseDTO(event);
     }
 
-    @Transactional
-    public EventResponseDTO updateDraft(UUID eventId, EventDraftRequestDTO dto, long callerId) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
-        requireDraftOwner(event, callerId);
-
-        if (dto.getTitle() != null) event.setTitle(dto.getTitle());
-        if (dto.getDescription() != null) event.setDescription(dto.getDescription());
-        if (dto.getShortDescription() != null) event.setShortDescription(dto.getShortDescription());
-        if (dto.getImage() != null) event.setImage(dto.getImage());
-        if (dto.getLocation() != null) event.setLocation(dto.getLocation());
-        if (dto.getStartAt() != null) event.setStartAt(dto.getStartAt());
-        if (dto.getEndAt() != null) event.setEndAt(dto.getEndAt());
-        if (dto.getAvailableGroupIds() != null) event.setAvailableGroupIds(dto.getAvailableGroupIds());
-        if (dto.getSchoolId() != null) event.setSchoolId(dto.getSchoolId());
-        if (dto.getRequestedPointsPerAttendee() != null) event.setRequestedPointsPerAttendee(dto.getRequestedPointsPerAttendee());
-        if (dto.getRegistrationRequired() != null) event.setRegistrationRequired(dto.getRegistrationRequired());
-
-        event = eventRepository.saveAndFlush(event);
-        return mapToResponseDTO(event);
-    }
-
     @Transactional(readOnly = true)
     public List<EventResponseDTO> getMyDrafts(long callerId) {
         return eventRepository.findByOwnerIdAndModerationStatus(callerId, EventModerationStatus.DRAFT).stream()
@@ -177,17 +155,7 @@ public class EventService {
         return mapToResponseDTO(event);
     }
 
-    private void requireFilled(String value, String field) {
-        if (value == null || value.isBlank()) {
-            throw new InvalidEventDataException(field, field + " must be filled before submitting");
-        }
-    }
 
-    private void requireDraftOwner(Event event, long callerId) {
-        if (event.getOwnerId() != callerId) {
-            throw new UnauthorizedException("Черновик доступен только тому, кто его создал");
-        }
-    }
 
     @Transactional(readOnly = true)
     public EventShortDescriptionResponse getShortEventDescription(UUID eventId) {
@@ -196,11 +164,34 @@ public class EventService {
         return mapToShortDescription(event);
     }
 
+    /**
+     * Единая точка редактирования для черновика и уже отправленной заявки:
+     * - черновик (moderationStatus=DRAFT) — редактировать может только владелец
+     *   (ownerId), и только пока он черновик — доступны все поля, включая
+     *   schoolId/requestedPointsPerAttendee.
+     * - отправленная заявка (SUBMITTED и далее) — владелец школы или ADMIN,
+     *   как раньше; schoolId/requestedPointsPerAttendee уже зафиксированы и
+     *   недоступны для правки.
+     * - pointsPerAttendee (фактически назначенные баллы) — только ADMIN, в
+     *   любой момент, независимо от статуса (правка человеческой ошибки после
+     *   одобрения).
+     */
     @Transactional
-    public EventResponseDTO updateEvent(UUID eventId, EventUpdateRequestDTO dto, String role, Long callerSchoolId) {
+    public EventResponseDTO updateEvent(UUID eventId, EventUpdateRequestDTO dto, String role, Long callerId, Long callerSchoolId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found with id: " + eventId));
-        requireOwnerOrAdmin(event, role, callerSchoolId);
+
+        boolean isDraft = event.getModerationStatus() == EventModerationStatus.DRAFT;
+        boolean isAdmin = ROLE_ADMIN.equals(role);
+
+        if (isDraft) {
+            if (callerId == null) {
+                throw new UnauthorizedException("Missing X-Lichnost-Id header");
+            }
+            requireDraftOwner(event, callerId);
+        } else {
+            requireOwnerOrAdmin(event, role, callerSchoolId);
+        }
 
         if (dto.getTitle() != null) {
             if (dto.getTitle().isBlank()) {
@@ -229,6 +220,22 @@ public class EventService {
         if (dto.getAvailableGroupIds() != null) event.setAvailableGroupIds(dto.getAvailableGroupIds());
         if (dto.getRegistrationRequired() != null) event.setRegistrationRequired(dto.getRegistrationRequired());
         if (dto.getStatus() != null) event.setStatus(dto.getStatus());
+
+        if (dto.getSchoolId() != null || dto.getRequestedPointsPerAttendee() != null) {
+            if (!isDraft) {
+                throw new InvalidEventDataException("schoolId",
+                        "schoolId/requestedPointsPerAttendee can only be changed while the event is still a draft");
+            }
+            if (dto.getSchoolId() != null) event.setSchoolId(dto.getSchoolId());
+            if (dto.getRequestedPointsPerAttendee() != null) event.setRequestedPointsPerAttendee(dto.getRequestedPointsPerAttendee());
+        }
+
+        if (dto.getPointsPerAttendee() != null) {
+            if (!isAdmin) {
+                throw new UnauthorizedException("Менять фактически назначенные баллы может только администратор");
+            }
+            event.setPointsPerAttendee(dto.getPointsPerAttendee());
+        }
 
         event = eventRepository.saveAndFlush(event);
         return mapToResponseDTO(event);
@@ -299,6 +306,18 @@ public class EventService {
             return;
         }
         throw new UnauthorizedException("Редактировать мероприятие может только профорг его школы или администратор");
+    }
+
+    private void requireFilled(String value, String field) {
+        if (value == null || value.isBlank()) {
+            throw new InvalidEventDataException(field, field + " must be filled before submitting");
+        }
+    }
+
+    private void requireDraftOwner(Event event, long callerId) {
+        if (event.getOwnerId() != callerId) {
+            throw new UnauthorizedException("Черновик доступен только тому, кто его создал");
+        }
     }
 
     /**

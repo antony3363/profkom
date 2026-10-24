@@ -2,6 +2,7 @@ package com.example.events_service.DTOs;
 
 
 import com.example.events_service.enums.EventStatus;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -33,4 +34,22 @@ public class EventUpdateRequestDTO {
     private Boolean registrationRequired;
 
     private EventStatus status;
+
+    /**
+     * Школа заявки и запрошенные баллы — редактируемы только пока мероприятие
+     * ещё черновик (moderationStatus=DRAFT), и только владельцем. После отправки
+     * на рассмотрение — зафиксированы (см. EventService.updateEvent).
+     */
+    private Long schoolId;
+
+    @PositiveOrZero
+    private Integer requestedPointsPerAttendee;
+
+    /**
+     * Фактически назначенные баллы — может менять ТОЛЬКО администратор, в любой
+     * момент (включая уже одобренные/прошедшие мероприятия) — на случай ошибки
+     * при одобрении (человеческий фактор).
+     */
+    @PositiveOrZero
+    private Integer pointsPerAttendee;
 }

@@ -62,13 +62,22 @@ public class EventController {
         return ResponseEntity.ok(events);
     }
 
+    /**
+     * Единая ручка редактирования — и для черновика, и для уже отправленной
+     * заявки (в т.ч. после одобрения). Кто что может редактировать зависит от
+     * статуса мероприятия и роли вызывающего — разбирается внутри сервиса:
+     * черновик — только владелец; отправленная заявка — владелец школы или
+     * ADMIN; requestedPointsPerAttendee/schoolId — только пока черновик;
+     * pointsPerAttendee — только ADMIN, в любой момент.
+     */
     @PutMapping("/{eventId}")
     public ResponseEntity<EventResponseDTO> updateEvent(
             @RequestHeader(value = "X-User-Role", required = false) String role,
+            @RequestHeader(value = "X-Lichnost-Id", required = false) Long callerId,
             @RequestHeader(value = "X-School-Id", required = false) Long callerSchoolId,
             @PathVariable UUID eventId,
             @Valid @RequestBody EventUpdateRequestDTO dto) {
-        EventResponseDTO response = eventService.updateEvent(eventId, dto, role, callerSchoolId);
+        EventResponseDTO response = eventService.updateEvent(eventId, dto, role, callerId, callerSchoolId);
         return ResponseEntity.ok(response);
     }
 
@@ -110,21 +119,6 @@ public class EventController {
         }
         EventResponseDTO response = eventService.saveNewDraft(dto, callerId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    /**
-     * Дозаполнить/изменить ранее сохранённый черновик — только его владелец.
-     */
-    @PutMapping("/draft/{eventId}")
-    public ResponseEntity<EventResponseDTO> updateDraft(
-            @RequestHeader(value = "X-Lichnost-Id", required = false) Long callerId,
-            @PathVariable UUID eventId,
-            @RequestBody EventDraftRequestDTO dto) {
-        if (callerId == null) {
-            throw new UnauthorizedException("Missing X-Lichnost-Id header");
-        }
-        EventResponseDTO response = eventService.updateDraft(eventId, dto, callerId);
-        return ResponseEntity.ok(response);
     }
 
     /**
