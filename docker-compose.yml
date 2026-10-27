@@ -5,7 +5,7 @@ services:
     image: postgres:17-alpine
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: "123"
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-123}
     ports:
       - "5433:5432"
     volumes:
@@ -34,12 +34,15 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-      KAFKA_HEAP_OPTS: "-Xms256m -Xmx384m"
+      KAFKA_HEAP_OPTS: "-Xms192m -Xmx256m"
+      KAFKA_JVM_PERFORMANCE_OPTS: "-XX:+UseSerialGC -XX:MaxMetaspaceSize=128m"
+      KAFKA_NUM_NETWORK_THREADS: "2"
+      KAFKA_NUM_IO_THREADS: "4"
 
   eureka-server:
     build: ./eureka_server
     environment:
-      JAVA_TOOL_OPTIONS: "-Xms96m -Xmx160m -XX:+UseSerialGC"
+      JAVA_TOOL_OPTIONS: "-Xms96m -Xmx160m -XX:+UseSerialGC -XX:MaxMetaspaceSize=128m -Xss512k"
     ports:
       - "8761:8761"
 
@@ -52,12 +55,18 @@ services:
         condition: service_started
       eureka-server:
         condition: service_started
+    volumes:
+      - ./secrets/jwt-private.pem:/app/jwt-private.pem:ro
+      - ./secrets/jwt-public.pem:/app/jwt-public.pem:ro
     environment:
       DB_HOST: postgres
+      DB_PASSWORD: ${DB_PASSWORD:-123}
+      JWT_PRIVATE_KEY_PATH: /app/jwt-private.pem
+      JWT_PUBLIC_KEY_PATH: /app/jwt-public.pem
       EUREKA_URL: http://eureka-server:8761/eureka/
       KAFKA_BOOTSTRAP_SERVERS: kafka:19092
       SWAGGER_HOST: ${SWAGGER_HOST:-localhost}
-      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx224m -XX:+UseSerialGC"
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx224m -XX:+UseSerialGC -XX:MaxMetaspaceSize=128m -Xss512k"
     ports:
       - "8081:8081"
 
@@ -70,9 +79,10 @@ services:
         condition: service_started
     environment:
       DB_HOST: postgres
+      DB_PASSWORD: ${DB_PASSWORD:-123}
       EUREKA_URL: http://eureka-server:8761/eureka/
       PROFILE_SERVICE_HOST: profile-service
-      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx224m -XX:+UseSerialGC"
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx224m -XX:+UseSerialGC -XX:MaxMetaspaceSize=128m -Xss512k"
     ports:
       - "8080:8080"
 
@@ -85,10 +95,11 @@ services:
         condition: service_started
     environment:
       DB_HOST: postgres
+      DB_PASSWORD: ${DB_PASSWORD:-123}
       EUREKA_URL: http://eureka-server:8761/eureka/
       EVENTS_SERVICE_HOST: events-service
       TRANSACTIONS_SERVICE_HOST: transactions-service
-      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx224m -XX:+UseSerialGC"
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx224m -XX:+UseSerialGC -XX:MaxMetaspaceSize=128m -Xss512k"
     ports:
       - "8082:8082"
 
@@ -101,9 +112,10 @@ services:
         condition: service_started
     environment:
       DB_HOST: postgres
+      DB_PASSWORD: ${DB_PASSWORD:-123}
       EUREKA_URL: http://eureka-server:8761/eureka/
       TRANSACTIONS_SERVICE_HOST: transactions-service
-      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx224m -XX:+UseSerialGC"
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx224m -XX:+UseSerialGC -XX:MaxMetaspaceSize=128m -Xss512k"
     ports:
       - "8083:8083"
 
@@ -116,8 +128,9 @@ services:
         condition: service_started
     environment:
       DB_HOST: postgres
+      DB_PASSWORD: ${DB_PASSWORD:-123}
       EUREKA_URL: http://eureka-server:8761/eureka/
-      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx224m -XX:+UseSerialGC"
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx224m -XX:+UseSerialGC -XX:MaxMetaspaceSize=128m -Xss512k"
     ports:
       - "8084:8084"
 
@@ -132,9 +145,10 @@ services:
         condition: service_started
     environment:
       DB_HOST: postgres
+      DB_PASSWORD: ${DB_PASSWORD:-123}
       EUREKA_URL: http://eureka-server:8761/eureka/
       KAFKA_BOOTSTRAP_SERVERS: kafka:19092
-      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx224m -XX:+UseSerialGC"
+      JAVA_TOOL_OPTIONS: "-Xms128m -Xmx224m -XX:+UseSerialGC -XX:MaxMetaspaceSize=128m -Xss512k"
     ports:
       - "8085:8085"
 
@@ -148,7 +162,7 @@ services:
     environment:
       EUREKA_URL: http://eureka-server:8761/eureka/
       AUTH_SERVICE_URL: http://auth-service:8081
-      JAVA_TOOL_OPTIONS: "-Xms96m -Xmx160m -XX:+UseSerialGC"
+      JAVA_TOOL_OPTIONS: "-Xms96m -Xmx160m -XX:+UseSerialGC -XX:MaxMetaspaceSize=128m -Xss512k"
     ports:
       - "8090:8090"
 

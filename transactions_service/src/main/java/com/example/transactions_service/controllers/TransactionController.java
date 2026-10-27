@@ -64,23 +64,6 @@ public class TransactionController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    /**
-     * Вызывается Shop Service при подтверждении покупки. Доверенный сервис-к-сервису
-     * вызов (нет отдельной service-to-service аутентификации в MVP — известное
-     * ограничение, см. итоговое сообщение).
-     */
-    @PostMapping("/purchase-charge")
-    public ResponseEntity<TransactionResponseDTO> chargePurchase(@Valid @RequestBody PurchaseChargeRequestDTO dto) {
-        TransactionResponseDTO response = transactionService.chargePurchase(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    @PostMapping("/refund")
-    public ResponseEntity<TransactionResponseDTO> refund(@Valid @RequestBody PurchaseChargeRequestDTO dto) {
-        TransactionResponseDTO response = transactionService.refundPurchase(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
     @GetMapping
     public ResponseEntity<List<TransactionResponseDTO>> getHistory(@RequestParam UUID walletId) {
         return ResponseEntity.ok(transactionService.getHistoryByWalletId(walletId));
