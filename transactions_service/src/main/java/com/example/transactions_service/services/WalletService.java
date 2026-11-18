@@ -17,13 +17,6 @@ public class WalletService {
 
     private final WalletRepository walletRepository;
 
-    /**
-     * isAdmin решает вызывающая сторона (контроллер), уже проверившая роль по
-     * заголовкам от API Gateway — здесь мы просто доверяем этому флагу при первом
-     * создании кошелька. Если кошелёк уже существует, его unlimited-статус не меняется
-     * задним числом (роль могла быть присвоена позже — это отдельный сценарий, не
-     * покрытый MVP).
-     */
     @Transactional
     public Wallet getOrCreatePersonalWallet(long userId, boolean isAdmin) {
         return walletRepository.findByOwnerUserIdAndWalletType(userId, WalletType.PERSONAL)

@@ -59,6 +59,15 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/variants/{variantId}")
+    public ResponseEntity<ProductVariantResponseDTO> updateVariant(
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @PathVariable UUID variantId,
+            @Valid @RequestBody ProductVariantUpdateRequestDTO dto) {
+        requireAdmin(role);
+        return ResponseEntity.ok(productService.updateProductVariant(variantId, dto));
+    }
+
     private void requireAdmin(String role) {
         if (!ROLE_ADMIN.equals(role)) {
             throw new UnauthorizedException("Только администратор управляет каталогом товаров");

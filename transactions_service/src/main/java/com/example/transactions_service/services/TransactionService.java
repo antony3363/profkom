@@ -24,11 +24,7 @@ public class TransactionService {
     private final WalletRepository walletRepository;
     private final WalletService walletService;
 
-    /**
-     * Начисление баллов за посещение мероприятия. Списывается с личного кошелька
-     * рецензента (Литвинова/админа, одобрившего мероприятие) — его кошелёк unlimited,
-     * поэтому баланс физически не проверяется.
-     */
+    // Начисление баллов за посещение мероприятия
     @Transactional
     public TransactionResponseDTO eventReward(long reviewerUserId, EventRewardRequestDTO dto) {
         Wallet sender = walletService.getOrCreatePersonalWallet(reviewerUserId, true);
@@ -49,10 +45,7 @@ public class TransactionService {
         return mapToResponseDTO(transactionRepository.saveAndFlush(transaction));
     }
 
-    /**
-     * Ручной перевод от Литвинова конкретному человеку или на кошелёк школы.
-     * callerUserId уже проверен контроллером как ADMIN.
-     */
+    // Перевод от Литвинова
     @Transactional
     public TransactionResponseDTO transferFromAdmin(long callerUserId, TransferRequestDTO dto) {
         Wallet sender = walletService.getOrCreatePersonalWallet(callerUserId, true);
@@ -72,10 +65,7 @@ public class TransactionService {
         return mapToResponseDTO(transactionRepository.saveAndFlush(transaction));
     }
 
-    /**
-     * Профорг школы награждает студента за заслуги из рабочего кошелька школы.
-     * Баланс школьного кошелька не unlimited — проверяется как обычно.
-     */
+    // Вознаграждение со счета школы
     @Transactional
     public TransactionResponseDTO schoolAward(long schoolId, SchoolAwardRequestDTO dto) {
         Wallet sender = walletService.getOrCreateSchoolWallet(schoolId);
@@ -95,9 +85,7 @@ public class TransactionService {
         return mapToResponseDTO(transactionRepository.saveAndFlush(transaction));
     }
 
-    /**
-     * Списание за покупку в Shop Service — баллы выходят из оборота (receiver = null).
-     */
+    // Совершение покупки
     @Transactional
     public TransactionResponseDTO chargePurchase(PurchaseChargeRequestDTO dto) {
         Wallet sender = walletService.getOrCreatePersonalWallet(dto.getBuyerUserId(), false);
@@ -116,10 +104,7 @@ public class TransactionService {
         return mapToResponseDTO(transactionRepository.saveAndFlush(transaction));
     }
 
-    /**
-     * Возврат за отменённую/возвращённую покупку — баллы возвращаются в оборот
-     * (sender = null).
-     */
+    // Возврат средств за покупку
     @Transactional
     public TransactionResponseDTO refundPurchase(PurchaseChargeRequestDTO dto) {
         Wallet receiver = walletService.getOrCreatePersonalWallet(dto.getBuyerUserId(), false);

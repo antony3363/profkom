@@ -8,6 +8,7 @@ import com.example.shop_service.enums.ProductStatus;
 import com.example.shop_service.exceptions.EntityNotFoundException;
 import com.example.shop_service.repositories.CategoryRepository;
 import com.example.shop_service.repositories.ProductRepository;
+import com.example.shop_service.repositories.ProductVariantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductVariantRepository productVariantRepository;
     private final CategoryRepository categoryRepository;
 
     @Transactional
@@ -95,6 +97,20 @@ public class ProductService {
         product.setDeletedAt(LocalDateTime.now());
         product.setStatus(ProductStatus.ARCHIVED);
         productRepository.saveAndFlush(product);
+    }
+
+    @Transactional
+    public ProductVariantResponseDTO updateProductVariant(UUID variantId, ProductVariantUpdateRequestDTO dto) {
+        ProductVariant variant = productVariantRepository
+                .findWithLockByVariantId(variantId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "ProductVariant not found with id: " + variantId));
+
+        if (dto.getPriceOverride() != null) variant.setPriceOverride(dto.getPriceOverride());
+        if (dto.getStock() != null) variant.setStock(dto.getStock());
+
+        productVariantRepository.saveAndFlush(variant);
+        return mapVariantToResponseDTO(variant);
     }
 
     private Product findActiveProduct(UUID productId) {

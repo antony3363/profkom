@@ -39,7 +39,7 @@ public class ProductVariant {
     private String color;
 
     @Column(name = "stock", nullable = false)
-    private int stock;
+    private Integer stock;
 
     @Column(name = "price_override")
     private Long priceOverride;
